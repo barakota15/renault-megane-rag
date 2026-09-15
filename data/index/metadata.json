@@ -1,0 +1,7 @@
+{
+  "total_pages": 2492,
+  "total_chunks": 2626,
+  "embedding_model": "all-MiniLM-L6-v2",
+  "source_pdf": "renault-megane-1995-2002-factory-workshop-service-manual.pdf",
+  "pdf_size_bytes": 34097032
+}

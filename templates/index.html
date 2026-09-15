@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Renault Mégane I (1995-2002) Workshop Service AI</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+              yellow: '#FFCC00', // Renault Racing Yellow
+            },
+            dark: {
+              800: '#1e293b',
+              850: '#172033',
+              900: '#0f172a',
+              950: '#080d1a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Marked.js for Markdown parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="h-full flex flex-col font-sans antialiased bg-dark-950 text-slate-200 overflow-hidden">
+
+  <!-- Top Navigation Bar -->
+  <header class="border-b border-slate-800/80 bg-dark-900/90 backdrop-blur-md px-6 py-3.5 flex items-center justify-between z-20">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 text-dark-950 font-black text-xl">
+        <i data-lucide="wrench" class="w-5 h-5 text-dark-950"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="font-bold text-lg tracking-tight text-white">Renault Mégane I</h1>
+          <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 font-medium">1995 – 2002</span>
+          <span class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 font-mono">Factory Manual RAG</span>
+        </div>
+        <p class="text-xs text-slate-400">Technical Workshop & Service Manual AI Assistant</p>
+      </div>
+    </div>
+
+    <!-- Vehicle Profile & Chat Actions Nav Section -->
+    <div class="flex items-center gap-2.5">
+      
+      <!-- Active Vehicle Profile Selector Button -->
+      <button id="vehicle-profile-btn" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition shadow-sm" title="Configure your car (Engine & Gearbox)">
+        <i data-lucide="car" class="w-4 h-4 text-amber-400"></i>
+        <div class="text-left hidden sm:block">
+          <div class="text-[9px] text-amber-400/70 uppercase tracking-wider font-semibold">Active Vehicle</div>
+          <div id="header-vehicle-badge" class="font-bold text-slate-200">1.6 16V K4M • JB3 Manual</div>
+        </div>
+        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-amber-400/80 ml-0.5"></i>
+      </button>
+
+      <!-- Index Status Indicator -->
+      <div id="index-status-badge" class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs">
+        <span id="status-pulse" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+        <span id="status-text" class="text-slate-300">Ready</span>
+        <button id="reindex-btn" class="hidden ml-1 hover:text-amber-400 transition" title="Re-build Index">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+
+      <!-- Provider Selector -->
+      <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-800 rounded-lg p-1">
+        <select id="provider-select" class="bg-transparent text-xs text-slate-300 font-medium focus:outline-none px-2 py-1 cursor-pointer">
+          <option value="gemini" class="bg-dark-900">Google Gemini (Flash)</option>
+          <option value="groq" class="bg-dark-900">Groq (Llama 3.3 70B)</option>
+          <option value="openai" class="bg-dark-900">OpenAI (GPT-4o)</option>
+          <option value="ollama" class="bg-dark-900">Local Ollama</option>
+        </select>
+        <button id="settings-btn" class="p-1.5 hover:bg-slate-800 rounded-md text-slate-400 hover:text-slate-200 transition" title="API Keys & Settings">
+          <i data-lucide="settings" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="flex-1 flex overflow-hidden">
+    
+    <!-- Sidebar: Manual Topics & Filters -->
+    <aside class="w-80 border-r border-slate-800/80 bg-dark-900/50 flex flex-col justify-between hidden md:flex">
+      
+      <!-- Section Filter & Quick Actions -->
+      <div class="p-4 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
+        
+        <!-- Conversation Controls Card -->
+        <div class="space-y-2 pb-3.5 border-b border-slate-800/80">
+          <button id="new-chat-btn" class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-dark-950 font-bold text-xs transition shadow-md shadow-amber-500/20 active:scale-[0.98]">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>New Conversation</span>
+          </button>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="save-chat-btn" class="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-lg bg-dark-850 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-amber-300 text-xs font-medium transition" title="Save current chat session">
+              <i data-lucide="bookmark" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>Save Chat</span>
+            </button>
+            <button id="saved-chats-btn" class="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-lg bg-dark-850 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white text-xs font-medium transition" title="View saved chats">
+              <i data-lucide="folder" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>Saved (<span id="saved-chats-count-badge">0</span>)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Active Car Configuration Card -->
+        <div class="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
+              <i data-lucide="cpu" class="w-3 h-3"></i> Configured Car
+            </span>
+            <button id="sidebar-edit-vehicle-btn" class="text-[10px] text-amber-400 hover:text-amber-300 font-semibold underline">Edit</button>
+          </div>
+          <div class="space-y-1 text-xs">
+            <div class="flex justify-between text-slate-300">
+              <span class="text-slate-500">Engine:</span>
+              <span id="sidebar-engine" class="font-mono font-bold text-amber-300">K4M (1.6L 16V)</span>
+            </div>
+            <div class="flex justify-between text-slate-300">
+              <span class="text-slate-500">Gearbox:</span>
+              <span id="sidebar-gearbox" class="font-mono text-slate-200">JB3 (5-Speed Manual)</span>
+            </div>
+            <div class="flex justify-between text-slate-300">
+              <span class="text-slate-500">Phase/Year:</span>
+              <span id="sidebar-phase" class="font-mono text-slate-400">Phase 2 (1999-2002)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Filter -->
+        <div>
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Filter by Chapter</label>
+          <div class="relative">
+            <select id="section-filter" class="w-full bg-dark-850 border border-slate-700/80 rounded-lg px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-amber-500 appearance-none cursor-pointer">
+              <option value="all">📖 All Manual Sections</option>
+              <option value="10 - Engine">🔧 10 - Engine & Peripherals</option>
+              <option value="11 - Top & Front">⚙️ 11 - Top & Front of Engine / Timing</option>
+              <option value="12 - Fuel">⛽ 12 - Fuel Injection & Mixture</option>
+              <option value="19 - Cooling">❄️ 19 - Cooling & Radiator</option>
+              <option value="20 - Clutch">🔄 20 - Clutch & Flywheel</option>
+              <option value="21 - Manual Gearbox">🕹️ 21 - JB3 / JC5 Gearbox</option>
+              <option value="37 - Braking">🛑 37 - Brakes & Hydraulics</option>
+              <option value="80 - Electrical">⚡ 80 - Electrical & Fuses</option>
+            </select>
+            <div class="absolute right-3 top-2.5 pointer-events-none text-slate-400">
+              <i data-lucide="chevron-down" class="w-4 h-4"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Topics Section -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Quick Repair Guides</label>
+            <span class="text-[10px] text-amber-400/80 font-mono">1-Click</span>
+          </div>
+          <div id="quick-topics-container" class="space-y-2">
+            <!-- Populated via JS -->
+            <div class="animate-pulse bg-slate-800/50 h-14 rounded-lg"></div>
+            <div class="animate-pulse bg-slate-800/50 h-14 rounded-lg"></div>
+            <div class="animate-pulse bg-slate-800/50 h-14 rounded-lg"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Manual File Info Footer -->
+      <div class="p-3.5 border-t border-slate-800 bg-dark-950/60 text-xs space-y-1.5">
+        <div class="flex items-center justify-between text-slate-400">
+          <span class="flex items-center gap-1.5">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-amber-500"></i>
+            <span class="truncate max-w-[160px]" title="renault-megane-1995-2002-factory-workshop-service-manual.pdf">Factory Manual.pdf</span>
+          </span>
+          <span id="manual-size" class="text-slate-500 font-mono">32.5 MB</span>
+        </div>
+        <div class="flex items-center justify-between text-[11px] text-slate-500">
+          <span>Engine Codes:</span>
+          <span class="text-slate-400 font-mono">K7M, K4M, F8Q, F9Q</span>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Main Chat & Retrieval Area -->
+    <main class="flex-1 flex flex-col bg-dark-950/90 relative">
+      
+      <!-- Ingestion Progress Banner (hidden by default) -->
+      <div id="ingestion-banner" class="hidden bg-amber-950/40 border-b border-amber-500/30 px-6 py-3 text-xs flex items-center justify-between">
+        <div class="flex items-center gap-3 flex-1 mr-4">
+          <i data-lucide="loader" class="w-4 h-4 text-amber-400 animate-spin"></i>
+          <div class="flex-1">
+            <div class="flex justify-between mb-1">
+              <span id="ingestion-msg" class="text-amber-200 font-medium">Extracting and indexing workshop manual...</span>
+              <span id="ingestion-pct" class="text-amber-400 font-mono font-bold">0%</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+              <div id="ingestion-bar" class="bg-amber-500 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages Stream View -->
+      <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+        
+        <!-- Welcome Greeting -->
+        <div class="max-w-3xl mx-auto rounded-2xl bg-dark-900/80 border border-slate-800/80 p-6 shadow-xl space-y-4">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+              <i data-lucide="book-open-check" class="w-6 h-6"></i>
+            </div>
+            <div class="space-y-1">
+              <h2 class="text-lg font-bold text-white">Renault Mégane I Workshop RAG Assistant</h2>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Trained on the complete Renault Mégane I (1995–2002) OEM workshop service manual. Ask any mechanical, electrical, torque specification, or diagnostic question with verified page references.
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
+            <div class="p-3 rounded-lg bg-dark-850 border border-slate-800 hover:border-slate-700 transition">
+              <div class="font-semibold text-amber-300 flex items-center gap-1.5 mb-1">
+                <i data-lucide="gauge" class="w-3.5 h-3.5"></i> Torque Specs & Tolerances
+              </div>
+              <p class="text-slate-400">Exact head bolt torque angles, bearing tolerances, and tightening sequences in daNm / Nm.</p>
+            </div>
+            <div class="p-3 rounded-lg bg-dark-850 border border-slate-800 hover:border-slate-700 transition">
+              <div class="font-semibold text-amber-300 flex items-center gap-1.5 mb-1">
+                <i data-lucide="git-commit" class="w-3.5 h-3.5"></i> Step-by-Step Procedures
+              </div>
+              <p class="text-slate-400">Timing belt locking pins (Mot. 1489), gearbox overhaul, bleeding ABS systems, clutch replacement.</p>
+            </div>
+            <div class="p-3 rounded-lg bg-dark-850 border border-slate-800 hover:border-slate-700 transition">
+              <div class="font-semibold text-amber-300 flex items-center gap-1.5 mb-1">
+                <i data-lucide="zap" class="w-3.5 h-3.5"></i> Electrical & Wiring
+              </div>
+              <p class="text-slate-400">Fuse box assignments, relay locations, immobiliser systems, sensor testing values.</p>
+            </div>
+            <div class="p-3 rounded-lg bg-dark-850 border border-slate-800 hover:border-slate-700 transition">
+              <div class="font-semibold text-amber-300 flex items-center gap-1.5 mb-1">
+                <i data-lucide="droplet" class="w-3.5 h-3.5"></i> Fluids & Capacities
+              </div>
+              <p class="text-slate-400">Gearbox oil viscosity (75W80 TRX), engine oil grades, coolant capacities, and intervals.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Input Bar Container -->
+      <div class="p-4 border-t border-slate-800/80 bg-dark-900/90 backdrop-blur-md">
+        <div class="max-w-4xl mx-auto space-y-2">
+          
+          <form id="chat-form" class="relative flex items-end gap-2 bg-dark-850 border border-slate-700/80 rounded-xl p-2 focus-within:border-amber-500/80 focus-within:ring-1 focus-within:ring-amber-500/40 transition">
+            <textarea
+              id="user-input"
+              rows="1"
+              placeholder="Ask about torque specs, timing belt, fuses, gearbox oil, wiring diagrams..."
+              class="w-full bg-transparent text-sm text-slate-100 placeholder-slate-500 focus:outline-none resize-none px-3 py-1.5 max-h-36 custom-scrollbar"
+            ></textarea>
+
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                id="search-only-toggle"
+                class="px-2 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
+                title="Toggle Pure Search vs AI Generation"
+              >
+                <span class="flex items-center gap-1">
+                  <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                  <span class="hidden sm:inline">Search Chunks</span>
+                </span>
+              </button>
+
+              <button
+                type="submit"
+                id="send-btn"
+                class="w-9 h-9 rounded-lg bg-amber-500 hover:bg-amber-400 text-dark-950 font-bold flex items-center justify-center transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-amber-500/20"
+              >
+                <i data-lucide="arrow-up" class="w-5 h-5"></i>
+              </button>
+            </div>
+          </form>
+
+          <!-- Context Window & Meter Bar -->
+          <div class="flex flex-wrap items-center justify-between gap-3 text-xs pt-1 px-1 text-slate-400 border-t border-slate-800/60 mt-2">
+            <!-- Context Meter & Tokens -->
+            <div class="flex items-center gap-2.5">
+              <div class="flex items-center gap-1.5" title="Active conversation context & LLM memory budget">
+                <i data-lucide="cpu" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span class="text-slate-400 font-medium text-[11px]">Context:</span>
+                <span id="context-pct-label" class="font-bold font-mono text-emerald-400 text-xs">0%</span>
+              </div>
+              
+              <!-- Mini Progress Bar -->
+              <div class="w-24 sm:w-36 bg-slate-800/90 rounded-full h-1.5 overflow-hidden border border-slate-700/50" title="Context memory usage indicator">
+                <div id="context-progress-bar" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+
+              <span id="context-tokens-badge" class="hidden sm:inline font-mono text-[10px] text-slate-500">0 / 8,192 tokens</span>
+              <span id="context-turns-badge" class="hidden md:inline px-1.5 py-0.5 rounded bg-slate-800/80 border border-slate-700/60 font-mono text-[10px] text-slate-400">0 turns</span>
+            </div>
+
+            <!-- Grounding & Quick Actions -->
+            <div class="flex items-center gap-2.5">
+              <span class="hidden lg:flex items-center gap-1 text-[11px] text-slate-500">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                OEM Workshop Grounded
+              </span>
+              <button type="button" id="export-chat-btn" class="flex items-center gap-1 px-2.5 py-1 rounded-md bg-dark-850 hover:bg-slate-800 border border-slate-700/60 text-slate-300 hover:text-amber-300 text-[11px] font-medium transition" title="Export conversation as Markdown (.md)">
+                <i data-lucide="download" class="w-3 h-3 text-amber-400"></i>
+                <span>Export MD</span>
+              </button>
+              <button type="button" id="quick-clear-btn" class="flex items-center gap-1 px-2 py-1 rounded-md bg-dark-850 hover:bg-slate-800 border border-slate-700/60 text-slate-400 hover:text-rose-400 text-[11px] font-medium transition" title="Clear current conversation">
+                <i data-lucide="trash-2" class="w-3 h-3 text-rose-400"></i>
+                <span>Clear</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Vehicle Configuration Modal -->
+  <div id="vehicle-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-dark-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 space-y-5 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <i data-lucide="car" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-base">Vehicle Specifications & Profile</h3>
+            <p class="text-[11px] text-slate-400">Tailor all torque specs, capacities, and procedures to your exact Mégane</p>
+          </div>
+        </div>
+        <button id="close-vehicle-modal-btn" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        
+        <!-- Factory Presets Selector -->
+        <div>
+          <label class="block font-semibold text-amber-300 mb-1.5 flex items-center gap-1">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> Quick Select Factory Preset
+          </label>
+          <select id="preset-select" class="w-full bg-dark-850 border border-amber-500/40 rounded-lg px-3 py-2.5 text-slate-200 font-medium focus:outline-none focus:border-amber-500 cursor-pointer">
+            <option value="k4m_16v">Mégane 1.6 16V (K4M) • 1598cc • JB3 Manual (Phase 2)</option>
+            <option value="k7m_8v">Mégane 1.6 8V (K7M) • 1598cc • JB1/JB3 Manual (Phase 1)</option>
+            <option value="e7j_14">Mégane 1.4 8V/16V (E7J / K4J) • 1390cc • JB1 Manual</option>
+            <option value="f3r_20">Mégane 2.0 8V/16V (F3R / F7R) • 1998cc • JB3/JC5 Manual</option>
+            <option value="f9q_diesel">Mégane 1.9 dTi / dCi Diesel (F9Q) • 1870cc • JC5 Manual</option>
+            <option value="auto_dp0">Mégane 1.6 16V Automatic (DP0 Proactive 4-Speed)</option>
+            <option value="custom">✏️ Custom Configuration...</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <!-- Engine Family / Code -->
+          <div>
+            <label class="block font-medium text-slate-300 mb-1">Engine Code / Family</label>
+            <select id="vehicle-engine-input" class="w-full bg-dark-850 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-amber-500">
+              <option value="K4M">K4M (1.6L 16V Petrol)</option>
+              <option value="K7M">K7M (1.6L 8V Petrol)</option>
+              <option value="E7J">E7J (1.4L 8V Energy)</option>
+              <option value="K4J">K4J (1.4L 16V Petrol)</option>
+              <option value="F3R">F3R (2.0L 8V Petrol)</option>
+              <option value="F7R">F7R (2.0L 16V Coupé)</option>
+              <option value="F8Q">F8Q (1.9L Diesel Atmos)</option>
+              <option value="F9Q">F9Q (1.9L dTi / dCi Turbo Diesel)</option>
+              <option value="Any">All / Any Engine</option>
+            </select>
+          </div>
+
+          <!-- Displacement / cc -->
+          <div>
+            <label class="block font-medium text-slate-300 mb-1">Capacity / Displacement (cc)</label>
+            <input type="text" id="vehicle-capacity-input" value="1.6L (1598cc)" placeholder="e.g. 1598cc / 1.6L" class="w-full bg-dark-850 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-amber-500 font-mono">
+          </div>
+
+          <!-- Transmission / Gearbox -->
+          <div>
+            <label class="block font-medium text-slate-300 mb-1">Transmission / Gearbox</label>
+            <select id="vehicle-gearbox-input" class="w-full bg-dark-850 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-amber-500">
+              <option value="JB3">JB3 (5-Speed Manual - Standard)</option>
+              <option value="JB1">JB1 (5-Speed Manual - Light)</option>
+              <option value="JC5">JC5 (5-Speed Manual - Reinforced/Diesel/2.0L)</option>
+              <option value="DP0">DP0 (4-Speed Proactive Automatic)</option>
+              <option value="AD4">AD4 (4-Speed Automatic - Phase 1)</option>
+              <option value="Any">All / Any Gearbox</option>
+            </select>
+          </div>
+
+          <!-- Phase / Generation -->
+          <div>
+            <label class="block font-medium text-slate-300 mb-1">Phase / Year</label>
+            <select id="vehicle-phase-input" class="w-full bg-dark-850 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-amber-500">
+              <option value="Phase 2 (1999-2002)">Phase 2 (1999 – 2002)</option>
+              <option value="Phase 1 (1995-1999)">Phase 1 (1995 – 1999)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Fuel / Injection System -->
+        <div>
+          <label class="block font-medium text-slate-300 mb-1">Fuel / Injection System</label>
+          <input type="text" id="vehicle-fuel-input" value="Petrol Multipoint Injection (Sirius 32)" placeholder="e.g. Multipoint Injection, dCi, etc." class="w-full bg-dark-850 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-amber-500">
+        </div>
+
+        <div class="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-[11px] text-slate-300 flex items-start gap-2">
+          <i data-lucide="info" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
+          <span>When configured, the AI will prioritize diagrams, torque specifications, and procedures tailored specifically to your selected engine and gearbox.</span>
+        </div>
+
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+        <button id="save-vehicle-btn" class="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-dark-950 font-bold rounded-lg text-xs transition shadow-md shadow-amber-500/20">
+          Save Vehicle Profile
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Saved Chats Modal -->
+  <div id="saved-chats-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-dark-900 border border-slate-800 rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl flex flex-col max-h-[85vh]">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <i data-lucide="bookmark" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-base">Saved Repair Conversations</h3>
+            <p class="text-[11px] text-slate-400">Reload previous repair sessions or export them to your records</p>
+          </div>
+        </div>
+        <button id="close-saved-chats-btn" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Saved Chats List Container -->
+      <div id="saved-chats-list" class="space-y-2.5 overflow-y-auto flex-1 custom-scrollbar pr-1 min-h-[220px]">
+        <!-- Populated via JS -->
+      </div>
+
+      <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+        <span id="saved-chats-summary">0 saved sessions</span>
+        <div class="flex items-center gap-2">
+          <button id="save-current-modal-btn" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-dark-950 font-bold flex items-center gap-1.5 transition shadow-sm">
+            <i data-lucide="bookmark-plus" class="w-3.5 h-3.5"></i> Save Current Chat
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings / API Keys Modal -->
+  <div id="settings-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+    <div class="bg-dark-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-5 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <i data-lucide="sliders" class="w-5 h-5 text-amber-400"></i>
+          <h3 class="font-bold text-white text-base">Model & API Configuration</h3>
+        </div>
+        <button id="close-settings-btn" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div>
+          <label class="block font-medium text-slate-300 mb-1">Google Gemini API Key</label>
+          <input type="password" id="gemini-key-input" placeholder="AIzaSy..." class="w-full bg-dark-850 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-amber-500">
+          <span class="text-[10px] text-slate-500 mt-1 block">Free tier keys from Google AI Studio work perfectly.</span>
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-300 mb-1">Groq API Key</label>
+          <input type="password" id="groq-key-input" placeholder="gsk_..." class="w-full bg-dark-850 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-amber-500">
+          <span class="text-[10px] text-slate-500 mt-1 block">For ultra-fast Llama 3.3 70B inference.</span>
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-300 mb-1">OpenAI API Key</label>
+          <input type="password" id="openai-key-input" placeholder="sk-..." class="w-full bg-dark-850 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-amber-500">
+        </div>
+
+        <div class="pt-2 border-t border-slate-800">
+          <label class="block font-medium text-slate-300 mb-1">Hybrid Search Balance (BM25 vs Vector)</label>
+          <div class="flex items-center gap-3">
+            <span class="text-slate-400">Dense Vector</span>
+            <input type="range" id="alpha-slider" min="0.0" max="1.0" step="0.05" value="0.45" class="flex-1 accent-amber-500">
+            <span class="text-slate-400">BM25 Keywords</span>
+          </div>
+          <span class="text-[10px] text-slate-500 text-center block mt-1">Current: <span id="alpha-value" class="text-amber-400 font-mono">0.45</span> (Balanced for automotive terms)</span>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="save-settings-btn" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-dark-950 font-bold rounded-lg text-xs transition">
+          Save Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive PDF Page Viewer Modal -->
+  <div id="page-viewer-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 hidden">
+    <div class="bg-dark-900 border border-slate-700/80 rounded-2xl w-full max-w-5xl h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+      
+      <!-- Viewer Header -->
+      <div class="px-5 py-3 border-b border-slate-800 bg-dark-950/90 flex flex-wrap items-center justify-between gap-3 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">
+            <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+            <span id="viewer-page-badge">Page 99 / 2492</span>
+          </div>
+          <h3 id="viewer-section-title" class="font-bold text-white text-sm truncate max-w-xs sm:max-w-md">11 - Top & Front of Engine</h3>
+        </div>
+
+        <!-- Toolbar & Zoom Controls -->
+        <div class="flex items-center gap-2 text-xs">
+          <!-- Page Nav Buttons -->
+          <div class="flex items-center bg-dark-850 border border-slate-800 rounded-lg p-0.5">
+            <button id="viewer-prev-btn" class="px-2 py-1 hover:bg-slate-800 rounded text-slate-300 hover:text-white transition disabled:opacity-30 disabled:cursor-not-allowed" title="Previous Page">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <div class="flex items-center px-1.5 font-mono text-slate-400 text-xs">
+              <input type="number" id="viewer-page-input" min="1" max="2492" value="1" class="w-12 bg-dark-900 border border-slate-700 rounded px-1.5 py-0.5 text-center text-slate-200 text-xs focus:outline-none focus:border-amber-500">
+            </div>
+            <button id="viewer-next-btn" class="px-2 py-1 hover:bg-slate-800 rounded text-slate-300 hover:text-white transition disabled:opacity-30 disabled:cursor-not-allowed" title="Next Page">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Zoom Buttons -->
+          <div class="hidden sm:flex items-center bg-dark-850 border border-slate-800 rounded-lg p-0.5">
+            <button id="viewer-zoom-out" class="p-1.5 hover:bg-slate-800 rounded text-slate-300 hover:text-white transition" title="Zoom Out">
+              <i data-lucide="zoom-out" class="w-4 h-4"></i>
+            </button>
+            <span id="viewer-zoom-level" class="px-1.5 font-mono text-slate-400 text-[11px]">100%</span>
+            <button id="viewer-zoom-in" class="p-1.5 hover:bg-slate-800 rounded text-slate-300 hover:text-white transition" title="Zoom In">
+              <i data-lucide="zoom-in" class="w-4 h-4"></i>
+            </button>
+            <button id="viewer-zoom-reset" class="p-1.5 hover:bg-slate-800 rounded text-slate-400 hover:text-amber-300 transition" title="Reset Zoom">
+              <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+
+          <!-- View Mode Toggle (Image vs Text) -->
+          <button id="viewer-toggle-mode" class="px-2.5 py-1.5 rounded-lg bg-dark-850 border border-slate-800 hover:border-amber-500/40 text-slate-300 hover:text-amber-300 transition flex items-center gap-1.5">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+            <span id="viewer-mode-label" class="hidden sm:inline">Text View</span>
+          </button>
+
+          <!-- Close Modal -->
+          <button id="close-viewer-btn" class="p-1.5 hover:bg-red-500/20 text-slate-400 hover:text-red-300 rounded-lg transition ml-1">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Viewer Body -->
+      <div class="flex-1 relative bg-slate-950 overflow-hidden flex items-center justify-center p-2 sm:p-4">
+        
+        <!-- Loading Spinner -->
+        <div id="viewer-loading" class="absolute inset-0 bg-dark-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 z-10 hidden">
+          <i data-lucide="loader" class="w-8 h-8 text-amber-400 animate-spin"></i>
+          <span class="text-xs text-slate-400">Rendering factory manual page...</span>
+        </div>
+
+        <!-- Rendered Page Image Container -->
+        <div id="viewer-img-wrapper" class="w-full h-full overflow-auto flex items-start justify-center custom-scrollbar">
+          <img id="viewer-page-img" src="" alt="Factory Manual Page" class="max-w-none shadow-2xl rounded border border-slate-800 transition-transform origin-top duration-150">
+        </div>
+
+        <!-- Text View Container (toggled) -->
+        <div id="viewer-text-wrapper" class="w-full h-full overflow-y-auto p-6 bg-dark-900 custom-scrollbar hidden">
+          <div class="max-w-3xl mx-auto space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <span class="text-xs font-semibold text-amber-400 uppercase tracking-wider">Extracted OCR / Manual Text</span>
+              <button id="copy-page-text-btn" class="text-xs px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition flex items-center gap-1">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Text
+              </button>
+            </div>
+            <pre id="viewer-page-text" class="text-xs text-slate-200 font-mono whitespace-pre-wrap leading-relaxed"></pre>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Viewer Footer -->
+      <div class="px-5 py-2.5 border-t border-slate-800 bg-dark-950/90 text-xs flex items-center justify-between text-slate-500">
+        <span class="flex items-center gap-1.5">
+          <i data-lucide="file-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+          Official Renault Megane I Factory Workshop Service Manual (1995-2002)
+        </span>
+        <div class="flex items-center gap-3">
+          <a id="viewer-open-tab" href="#" target="_blank" class="hover:text-amber-400 transition flex items-center gap-1">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Open Full Image
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- App Web-Native Dialog Modal (Alert, Confirm, Prompt) -->
+  <div id="app-dialog-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden transition-opacity duration-200">
+    <div id="app-dialog-card" class="bg-dark-900 border border-slate-700/80 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl transform transition-transform duration-200 scale-95">
+      <div class="flex items-start gap-3">
+        <div id="dialog-icon-wrapper" class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0 text-amber-400">
+          <i id="dialog-icon" data-lucide="info" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1 space-y-1">
+          <h3 id="dialog-title" class="font-bold text-white text-base">Workshop Notice</h3>
+          <p id="dialog-message" class="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap"></p>
+        </div>
+      </div>
+
+      <!-- Prompt input container (hidden unless prompt mode) -->
+      <div id="dialog-prompt-container" class="hidden pt-1">
+        <input type="text" id="dialog-prompt-input" class="w-full bg-dark-850 border border-slate-700 rounded-lg px-3 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50" placeholder="">
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex justify-end items-center gap-2 pt-2 border-t border-slate-800">
+        <button type="button" id="dialog-cancel-btn" class="px-4 py-2 rounded-lg bg-dark-850 hover:bg-slate-800 text-slate-300 text-xs font-medium transition border border-slate-700">
+          Cancel
+        </button>
+        <button type="button" id="dialog-confirm-btn" class="px-5 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-dark-950 text-xs font-bold transition shadow-md shadow-amber-500/20">
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
