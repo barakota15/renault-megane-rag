@@ -1,85 +1,121 @@
-# Renault Mégane I (1995–2002) Factory Workshop Manual — RAG AI Assistant 🚗🔧
+# Renault Mégane I (1995–2002) Workshop Service Manual — AI Assistant 🚗🔧
+### المساعد الذكي لكتالوج صيانة وورشة رينو ميجان 1 (الجيل الأول)
 
-A high-precision Retrieval-Augmented Generation (RAG) AI assistant built specifically for the **Renault Mégane I (1995–2002) OEM Factory Workshop Service Manual** (`renault-megane-1995-2002-factory-workshop-service-manual.pdf`).
+![Renault Mégane Workshop AI Preview](static/preview.jpg)
 
----
-
-## Key Features
-
-- **Vehicle Profile Customization**: Configure your exact Renault Mégane model (e.g., `1.6L 16V K4M`, `1.6L 8V K7M`, `1.4L E7J/K4J`, `2.0L F3R/F7R`, `1.9L Diesel F8Q/F9Q`, `JB1/JB3/JC5 Manual`, `DP0/AD4 Automatic`). All search results, capacities, wiring diagrams, and torque values automatically adapt to your engine and gearbox!
-- **Full Manual Ingestion**: Indexed all **2,492 pages** (2,626 semantic chunks) covering engine mechanics, timing belts, cylinder head torques, JB3/JC5 manual gearboxes, AD4/DP0 automatic transmissions, injection troubleshooting charts, wiring, fuses, and bodywork.
-- **Visual Diagram & Page Image Rendering**: High-resolution 150 DPI page rendering (`/api/pdf/render/{page_num}`) with an interactive PDF page viewer modal (zoom, page navigation, direct jump).
-- **Hybrid Retrieval**: Dense vector embeddings (`all-MiniLM-L6-v2`) combined with **BM25 keyword search** and engine-specific relevance boosting.
-- **BiDi RTL / LTR Typography**: Perfect reading order for mixed Arabic and English technical terms (`Terminal 50`, `Mot. 1489`, `+12V`, `20 daN.m`).
+A production-ready **Retrieval-Augmented Generation (RAG)** system designed specifically for the complete official **Renault Mégane I (1995–2002) OEM Factory Workshop Service Manual** (`2,492 pages`).
 
 ---
 
-## Quick Start
+## 🌟 الميزات الرئيسية (Key Features)
 
-### 1. Launch the Web Interface
+1. **التعرف التلقائي على اللغة (Bilingual & Language Matching)**:
+   * إذا سألت بالعربي، يرد بالعربي مع عزل المصطلحات والفيش والأرقام الإنجليزية بدقة (`BiDi Isolation`).
+   * إذا سألت بالإنجليزي، يرد بالكامل باللغة الإنجليزية التقنية المتخصصة مع وصف الرسومات بالإنجليزية.
 
+2. **عرض المخططات والرسومات الفنية (Interactive Wiring Diagrams & Schematics)**:
+   * يتعرف الذكاء الاصطناعي على دوائر الكهرباء وأرقام الفيش وتوزيع الفيوزات وضبط الكاتينة.
+   * يعرض صورة المخطط الفني بجودة عالية مع بطاقة تفاعلية وزر لفتح الصفحة الأصلية والتكبير (`Zoom / Pan`).
+
+3. **تخصيص ملف السيارة (Active Vehicle Profile)**:
+   * اختر كود المحرك (`K4M 16V`, `K7M 8V`, `E7J/K4J`, `F3R/F7R`, `F8Q/F9Q Diesel`) والفتيس (`JB3/JB1/JC5 يدوي` أو `DP0/AD4 أوتوماتيك`).
+   * يتم فلترة وتخصيص جميع عزم الربط، وسعات الزيوت، ومخططات الأسلاك لسيارتك تحديداً.
+
+4. **سياق حوار مستمر وحفظ المحادثات (Multi-Turn Context & Save Sessions)**:
+   * يتذكر الحوار السابق ويفهم أسئلة المتابعة والضمائر ("طب والطرف التاني بيتوصل بايه؟").
+   * إمكانية حفظ المحادثات واسترجاعها وتصديرها كملف Markdown (`.md`).
+
+5. **استرجاع هجين دقيق (Hybrid Semantic + BM25 Search)**:
+   * يدمج بين البحث الدلالي بالمتجهات (`all-MiniLM-L6-v2`) والبحث المعجمي الدقيق بالأكواد (`BM25`).
+
+---
+
+## 🚀 طريقة التثبيت والتشغيل المحلي (Local Setup)
+
+### 1. المتطلبات الأساسية
+* مثبت عندك **Python 3.10** أو أحدث.
+
+### 2. تثبيت المكتبات (Dependencies)
+افتح التيرمينال داخل مجلد المشروع ونفّذ:
+```bash
+pip install -r requirements.txt
+```
+
+### 3. تشغيل السيرفر المحلي
 ```bash
 python3 app.py
 ```
-
-Then open your browser at:
+افتح المتصفح على:
 👉 **`http://localhost:8000`**
 
-### 2. Run via Terminal CLI
-
-```bash
-# Ask a question
-python3 cli.py "What is the timing belt replacement procedure for a K4M 16V engine?"
-
-# Search manual chunks only (no LLM required)
-python3 cli.py "JB3 gearbox oil capacity" --search-only
-
-# Interactive terminal session
-python3 cli.py -i
-```
-
 ---
 
-## Configuration & API Keys
+## 🔑 تفعيل مفاتيح الذكاء الاصطناعي (API Configuration)
 
-You can enter your API keys either in the **Web UI Settings dialog** (top right ⚙️) or create a `.env` file:
+المشروع يدعم العمل مع أشهر وأسرع الموديلات:
+* **Google Gemini (الموصى به - مجاني وسريع جداً)**: احصل على مفتاح مجاني من [Google AI Studio](https://aistudio.google.com/app/apikey).
+* **Groq (Llama 3.3 70B - فائق السرعة)**: من [Groq Cloud Console](https://console.groq.com).
+* **OpenAI (GPT-4o)**: من [platform.openai.com](https://platform.openai.com).
+* **Local Ollama**: للعمل محلياً بدون إنترنت عبر `ollama run llama3.2`.
 
+### كيفية إدخال المفتاح:
+1. **من الواجهة مباشرة (الأسهل)**: اضغط على أيقونة الإعدادات (**⚙️**) أعلى يمين الصفحة، وأدخل المفتاح واضغط **Save Settings**.
+2. **أو عبر ملف `.env`**: أنشئ ملفاً باسم `.env` في المجلد الرئيسي وضع فيه:
 ```env
-# Choose: "gemini", "groq", "openai", or "ollama"
-DEFAULT_PROVIDER=gemini
-
-# Google Gemini API Key
-GEMINI_API_KEY=AIzaSy...
-
-# Groq API Key (Optional)
-GROQ_API_KEY=gsk_...
-
-# OpenAI API Key (Optional)
-OPENAI_API_KEY=sk-...
+GEMINI_API_KEY="AIzaSy..."
+GROQ_API_KEY="gsk_..."
+OPENAI_API_KEY="sk-..."
 ```
 
 ---
 
-## Project Structure
+## ☁️ طريقة الرفع المجاني على السيرفر (Hugging Face Spaces)
+لفتح الموقع من الهاتف أو من أي مكان دون الحاجة لإبقاء اللاب توب مفتوحاً:
+
+1. ادخل على [Hugging Face](https://huggingface.co) وأنشئ حساباً مجانياً.
+2. اضغط على **New Space** -> اختر اسماً للمشروع (مثل `renault-megane-rag`).
+3. اختر **Docker** ثم **Blank** واضغط **Create Space**.
+4. ارفع ملفات المشروع (ملف `Dockerfile` و `.dockerignore` مجهزان بالفعل).
+5. ادخل على **Settings** -> **Variables and secrets** وأضف مفتاحك باسم `GEMINI_API_KEY`.
+6. ستحصل على رابط دائم ومجاني 24/7 يمكنك حفظه على شاشة الموبايل الرئيسية!
+
+---
+
+## 📁 هيكل المشروع (Project Structure)
 
 ```
-├── renault-megane-1995-2002-factory-workshop-service-manual.pdf
-├── app.py                      # FastAPI web server and streaming endpoints
-├── cli.py                      # Interactive terminal tool
-├── requirements.txt            # Python dependencies
-├── .env.example                # Example environment variables
+├── renault-megane-1995-2002-factory-workshop-service-manual.pdf  # كتالوج الورشة الأصلي (2492 صفحة)
+├── app.py                                                       # خادم FastAPI ونقاط النهاية
+├── Dockerfile                                                   # إعداد الرفع السحابي المجاني
+├── .dockerignore                                                # استثناء الملفات الزائدة
+├── requirements.txt                                             # متطلبات بايثون
 ├── rag/
-│   ├── __init__.py
-│   ├── pdf_parser.py           # PyMuPDF extractor with chapter detection
-│   ├── chunker.py              # Semantic chunker with page metadata
-│   ├── indexer.py              # Dense vector + BM25 indexer
-│   ├── retriever.py            # Hybrid search engine (Vector + BM25)
-│   └── generator.py            # Multi-provider LLM generation & streaming
+│   ├── chunker.py                                               # تقسيم الكتالوج دلالياً
+│   ├── generator.py                                             # توليد الردود والرسومات ودعم اللغات
+│   ├── indexer.py                                               # بناء وإدارة فهرس البحث
+│   ├── pdf_parser.py                                            # استخراج النصوص والفصول من PDF
+│   ├── query_translator.py                                      # محلل ومترجم المصطلحات العربية ورينو
+│   └── retriever.py                                             # محرك البحث الهجين (Vector + BM25)
 ├── templates/
-│   └── index.html              # Responsive web dashboard
+│   └── index.html                                               # واجهة المستخدم التفاعلية
 ├── static/
-│   ├── app.js                  # Frontend client logic & streaming handler
-│   └── style.css               # Styling & typography
+│   ├── app.js                                                   # منطق الشات والمودالات وعرض الصفحات
+│   ├── style.css                                                # التنسيق وعزل الخطوط العربية والإنجليزية
+│   └── preview.jpg                                              # صورة استعراض الواجهة
 └── data/
-    └── index/                  # Cached vectors, BM25 index, & metadata
+    ├── index/                                                   # المتجهات ومطابقة الصفحات المخزنة
+    ├── saved_chats/                                             # المحادثات المحفوظة
+    └── page_cache/                                              # ذاكرة التخزين المؤقت لصور الصفحات
+```
+
+---
+
+## 🧪 الاختبارات والتأكد من الجاهزية (Verification)
+لتشغيل الفحص التلقائي لجميع وظائف النظام والـ API:
+```bash
+python3 test_app.py
+```
+سيعطي النتيجة:
+```
+ALL AUTOMATED TESTS PASSED! 🚀
 ```

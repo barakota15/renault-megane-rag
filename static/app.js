@@ -308,8 +308,31 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // =========================================================
-  // Context Window Usage & Token Meter
+  // Context Window Usage & Token Meter (Dynamic per Model)
   // =========================================================
+
+  const PROVIDER_CONTEXT_LIMITS = {
+    gemini: {
+      tokens: 1000000,
+      label: "1M",
+      name: "Google Gemini Flash"
+    },
+    groq: {
+      tokens: 128000,
+      label: "128K",
+      name: "Groq Llama 3.3 70B"
+    },
+    openai: {
+      tokens: 128000,
+      label: "128K",
+      name: "OpenAI GPT-4o-mini"
+    },
+    ollama: {
+      tokens: 8192,
+      label: "8K",
+      name: "Local Ollama"
+    }
+  };
 
   function updateContextMeter() {
     const contextPctLabel = document.getElementById('context-pct-label');
@@ -319,13 +342,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!contextPctLabel || !contextProgressBar) return;
 
+    const currentProvider = (providerSelect && providerSelect.value) ? providerSelect.value : 'gemini';
+    const providerConfig = PROVIDER_CONTEXT_LIMITS[currentProvider] || PROVIDER_CONTEXT_LIMITS.gemini;
+    const maxBudget = providerConfig.tokens;
+
     const userTurns = conversationHistory.filter(m => m.role === 'user').length;
     if (conversationHistory.length === 0) {
       contextPctLabel.textContent = '0%';
       contextProgressBar.style.width = '0%';
       contextProgressBar.className = 'bg-emerald-500 h-1.5 rounded-full transition-all duration-300';
       contextPctLabel.className = 'font-bold font-mono text-emerald-400 text-xs';
-      if (contextTokensBadge) contextTokensBadge.textContent = '0 / 8,192 tokens';
+      if (contextTokensBadge) {
+        contextTokensBadge.textContent = `0 / ${maxBudget.toLocaleString()} tokens (${providerConfig.label})`;
+        contextTokensBadge.title = `Model Context Window: ${providerConfig.name} (${maxBudget.toLocaleString()} tokens)`;
+      }
       if (contextTurnsBadge) contextTurnsBadge.textContent = '0 turns';
       return;
     }
@@ -342,16 +372,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const retrievedContextTokens = Math.min(2500, userTurns * 450); // workshop manual chunks
     const estimatedTokens = baseSystemPromptTokens + retrievedContextTokens + historyTokens;
 
-    const maxBudget = 8192; // 8K context budget target
-    const pct = Math.min(100, Math.round((estimatedTokens / maxBudget) * 100));
+    const rawPct = (estimatedTokens / maxBudget) * 100;
 
-    contextPctLabel.textContent = `${pct}%`;
-    contextProgressBar.style.width = `${pct}%`;
+    let displayPct = "0%";
+    if (rawPct < 0.1 && estimatedTokens > 0) {
+      displayPct = "<0.1%";
+    } else if (rawPct < 1 && estimatedTokens > 0) {
+      displayPct = `${rawPct.toFixed(1)}%`;
+    } else {
+      displayPct = `${Math.min(100, Math.round(rawPct))}%`;
+    }
 
-    if (pct >= 85) {
+    contextPctLabel.textContent = displayPct;
+
+    // Minimum visible indicator width of 1.5% if tokens exist so user gets visual feedback
+    const barWidth = Math.min(100, Math.max(estimatedTokens > 0 ? 1.5 : 0, rawPct));
+    contextProgressBar.style.width = `${barWidth}%`;
+
+    if (rawPct >= 85) {
       contextProgressBar.className = 'bg-rose-500 h-1.5 rounded-full transition-all duration-300';
       contextPctLabel.className = 'font-bold font-mono text-rose-400 text-xs';
-    } else if (pct >= 55) {
+    } else if (rawPct >= 55) {
       contextProgressBar.className = 'bg-amber-500 h-1.5 rounded-full transition-all duration-300';
       contextPctLabel.className = 'font-bold font-mono text-amber-400 text-xs';
     } else {
@@ -360,7 +401,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (contextTokensBadge) {
-      contextTokensBadge.textContent = `${estimatedTokens.toLocaleString()} / ${maxBudget.toLocaleString()} tokens`;
+      contextTokensBadge.textContent = `${estimatedTokens.toLocaleString()} / ${maxBudget.toLocaleString()} tokens (${providerConfig.label})`;
+      contextTokensBadge.title = `Model Context Window: ${providerConfig.name} (${maxBudget.toLocaleString()} tokens)`;
     }
     if (contextTurnsBadge) {
       contextTurnsBadge.textContent = `${userTurns} ${userTurns === 1 ? 'turn' : 'turns'}`;
@@ -792,6 +834,17 @@ document.addEventListener('DOMContentLoaded', () => {
   closeSettingsBtn.addEventListener('click', () => settingsModal.classList.add('hidden'));
   saveSettingsBtn.addEventListener('click', saveLocalSettings);
 
+  if (providerSelect) {
+    providerSelect.addEventListener('change', () => {
+      localStorage.setItem('preferred_provider', providerSelect.value);
+      updateContextMeter();
+      const provInfo = PROVIDER_CONTEXT_LIMITS[providerSelect.value];
+      if (provInfo) {
+        showToast(`Model: ${provInfo.name} (${provInfo.label} Context) 🧠`);
+      }
+    });
+  }
+
   // Close modals on outside click
   window.addEventListener('click', (e) => {
     if (e.target === settingsModal) settingsModal.classList.add('hidden');
@@ -928,13 +981,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Helper: Format Markdown with Interactive Clickable Page Citations
+  function createDiagramCard(pId, caption) {
+    const safeCaption = (caption || `Renault Manual Diagram - Page ${pId}`).trim();
+    return `
+      <div class="my-4 rounded-xl border border-amber-500/40 bg-dark-900/90 overflow-hidden shadow-xl group">
+        <div class="px-3.5 py-2.5 bg-dark-850 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <span class="font-semibold text-amber-300 flex items-center gap-1.5 truncate max-w-sm">
+            <i data-lucide="image" class="w-3.5 h-3.5 text-amber-400 shrink-0"></i>
+            <span>${safeCaption}</span>
+          </span>
+          <button type="button" onclick="openPageViewer('${pId}')" class="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-[11px] font-bold flex items-center gap-1 transition cursor-pointer">
+            <i data-lucide="maximize-2" class="w-3 h-3"></i> Full Page ${pId} ↗
+          </button>
+        </div>
+        <div class="p-2.5 bg-slate-950 flex justify-center cursor-pointer relative" onclick="openPageViewer('${pId}')" title="Click to view Page ${pId} in high resolution">
+          <img src="/api/pdf/render/${pId}" alt="${safeCaption}" class="max-h-96 rounded-lg object-contain transition-transform duration-200 group-hover:scale-[1.01]" loading="lazy">
+        </div>
+      </div>
+    `;
+  }
+
+  // Helper: Format Markdown with Interactive Clickable Page Citations & Diagram Cards
   function renderMarkdownWithInteractivePages(rawMarkdown) {
-    let parsedHtml = marked.parse(rawMarkdown);
-    // Convert [صفحة X] or [Page X] or [صفحة 10-48] or [p.92] into interactive buttons
+    if (!rawMarkdown) return "";
+
+    // 1. Strip any backticks wrapping markdown image syntax (common LLM artifact)
+    let cleaned = rawMarkdown.replace(/`+(!\[[^\]]*\]\((?:\/api\/pdf\/render\/|render\/)?[^)]+\))`+/g, '$1');
+
+    // 2. Parse standard markdown
+    let parsedHtml = marked.parse(cleaned);
+
+    // 3. Convert any raw literal image markdown (or code-wrapped image markdown) into diagram cards
+    parsedHtml = parsedHtml.replace(/(?:<code>)?!\[([^\]]*)\]\((?:\/api\/pdf\/render\/|render\/)?(\d{1,4}|\d{1,2}-\d{1,3})\)(?:<\/code>)?/gi, (match, caption, pId) => {
+      return createDiagramCard(pId, caption);
+    });
+
+    // 4. Convert parsed <img> tags pointing to /api/pdf/render into diagram cards
+    parsedHtml = parsedHtml.replace(/<p>\s*<img[^>]*src=["'](?:\/api\/pdf\/render\/|render\/)?(\d{1,4}|\d{1,2}-\d{1,3})["'][^>]*alt=["']?([^"'>]*)["']?[^>]*>\s*<\/p>/gi, (match, pId, caption) => {
+      return createDiagramCard(pId, caption);
+    });
+    parsedHtml = parsedHtml.replace(/<img[^>]*src=["'](?:\/api\/pdf\/render\/|render\/)?(\d{1,4}|\d{1,2}-\d{1,3})["'][^>]*alt=["']?([^"'>]*)["']?[^>]*>/gi, (match, pId, caption) => {
+      return createDiagramCard(pId, caption);
+    });
+
+    // 5. Convert [صفحة X] or [Page X] or [صفحة 10-48] or [p.92] into interactive buttons
     parsedHtml = parsedHtml.replace(/\[(?:صفحة|Page|p\.)\s*(\d{1,4}|\d{2}-\d{1,3})\]/gi, (match, pId) => {
       return `<button type="button" onclick="openPageViewer('${pId}')" class="inline-flex items-center gap-1 px-1.5 py-0.5 mx-0.5 rounded bg-amber-500/15 border border-amber-500/30 text-amber-300 font-semibold text-xs hover:bg-amber-500/25 transition cursor-pointer" title="Click to view Page ${pId}"><i data-lucide="book-open" class="w-3 h-3 text-amber-400"></i> ${match.replace('[', '').replace(']', '')} ↗</button>`;
     });
+
     return parsedHtml;
   }
 

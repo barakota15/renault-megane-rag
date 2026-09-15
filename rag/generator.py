@@ -21,21 +21,25 @@ YOUR REASONING, VISUAL SCHEMATIC & CITATION PRINCIPLES:
    - You are provided with actual high-resolution images of the manual pages containing the wiring diagrams and technical drawings.
    - Read the visual diagram carefully: trace the wire lines, observe the pin numbers (`1`, `2`, `3`, `4`), identify the relay terminals (`30`, `85`, `86`, `87`), component codes, and connector colors.
 
-3. EMBED DIAGRAM IMAGES DIRECTLY IN YOUR RESPONSE:
-   - Whenever the manual excerpt/page contains a visual diagram, wiring schematic, timing belt alignment illustration, fuse box map, or component location on page `X`, ALWAYS embed the diagram image directly into your response using markdown:
-     `![وصف المخطط أو الصورة - صفحة X](/api/pdf/render/X)`
-   - CRITICAL RULE: ALWAYS use the integer ABSOLUTE MANUAL PAGE number `X` (e.g., `/api/pdf/render/92` or `/api/pdf/render/540`). NEVER write section-page codes like `10-48` in the URL.
+3. EMBED DIAGRAM IMAGES DIRECTLY AS STANDALONE MARKDOWN:
+   - Whenever the manual excerpt/page contains a visual diagram, wiring schematic, timing belt alignment illustration, fuse box map, or component location on page X, ALWAYS embed the diagram image on its own line:
+     ![وصف المخطط أو الصورة - صفحة X](/api/pdf/render/X)
+   - CRITICAL: NEVER wrap the image syntax in backticks or code blocks. Write it as normal markdown image syntax.
+   - CRITICAL RULE: ALWAYS use the integer ABSOLUTE MANUAL PAGE number X (e.g., /api/pdf/render/92 or /api/pdf/render/378). NEVER write section-page codes like 10-48 in the URL.
 
-4. PERFECT ARABIC / ENGLISH MIXED-TEXT FORMATTING (BIDI RULES):
-   - When responding in Arabic, ALWAYS wrap English words, pin numbers, codes, wire identifiers, and units in backticks (e.g., `Terminal 50`, `Mot. 1489`, `12V 20A`, `2.5 mm²`, `K4M 1.6 16V`, `Pin 18`, `20 daN.m`).
-   - Using backticks ensures the English terms remain perfectly isolated in LTR order and never scramble inside Arabic RTL sentences.
+4. LANGUAGE MATCHING & ARABIC/ENGLISH BIDI RULES:
+   - ALWAYS MATCH THE USER'S LANGUAGE:
+     - If the user asks in English, respond ENTIRELY in professional, technical English (including English diagram captions, e.g. ![AD4 Transmission Wiring Schematic - Page 378](/api/pdf/render/378)).
+     - If the user asks in Arabic, respond in fluent Arabic (with Arabic diagram captions).
+   - When responding in Arabic, ALWAYS wrap English technical words, pin numbers, codes, wire identifiers, and units in backticks (e.g., `Terminal 50`, `Mot. 1489`, `12V 20A`, `2.5 mm²`, `K4M 1.6 16V`, `Pin 18`, `20 daN.m`) so they stay isolated in LTR order and do not scramble in RTL text.
+   - When responding in English, write natural English technical prose.
 
 5. PRACTICAL STEP-BY-STEP LAYOUT:
    - Theory of Operation / How the System Works.
-   - Embedded Factory Diagram Image: `![...](/api/pdf/render/X)`.
+   - Embedded Factory Diagram Image: ![...](/api/pdf/render/X) (on its own line, no backticks).
    - Wiring / Terminal Details (wire gauges, relay pins, fuse ratings).
    - Step-by-Step Procedure with safety warnings.
-   - Page Citations: `[صفحة X]` or `[Page X]`.
+   - Page Citations: [صفحة X] or [Page X].
 """
 
 
@@ -194,11 +198,12 @@ CURRENT USER QUESTION:
 
 CRITICAL RULES FOR RESPONSE:
 1. Provide a detailed, practical engineering response with step-by-step instructions and component pinouts.
-2. Build upon the previous conversation context above when answering follow-up questions.
-3. If any of the above manual pages contain diagrams, schematics, or mechanical figures, embed them using:
-   `![وصف المخطط - صفحة {context_chunks[0].page_num if context_chunks else 1}](/api/pdf/render/{context_chunks[0].page_num if context_chunks else 1})`
+2. MATCH USER LANGUAGE: If the user asks in English, reply entirely in English. If the user asks in Arabic, reply in Arabic.
+3. Build upon the previous conversation context above when answering follow-up questions.
+4. If any of the above manual pages contain diagrams, schematics, or mechanical figures, embed them directly as standalone markdown on their own line (DO NOT wrap in backticks):
+   ![Diagram Description - Page {context_chunks[0].page_num if context_chunks else 1}](/api/pdf/render/{context_chunks[0].page_num if context_chunks else 1})
    ALWAYS use the exact integer ABSOLUTE MANUAL PAGE number from the excerpts above.
-4. In Arabic text, wrap ALL English terms, part numbers, pins, and codes in backticks.
+5. In Arabic text, wrap ALL English technical terms, part numbers, pins, and codes in backticks. In English text, write natural English.
 """
         return prompt
 
