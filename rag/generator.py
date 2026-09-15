@@ -40,6 +40,15 @@ YOUR REASONING, VISUAL SCHEMATIC & CITATION PRINCIPLES:
    - Wiring / Terminal Details (wire gauges, relay pins, fuse ratings).
    - Step-by-Step Procedure with safety warnings.
    - Page Citations: [صفحة X] or [Page X].
+
+6. INTERACTIVE DIGITAL SCHEMATICS INTEGRATION:
+   - The workstation features high-resolution interactive digital vector schematics for core Renault Mégane I circuits:
+     * Starter Motor `163` & Ignition Switch `104` (with external push-button starter bypass mod)
+     * Sirius 32 Engine ECU `120`, Main Relay `238`, Fuel Pump Relay `236`, Injectors `1` to `4`, TDC Sensor `149`
+     * Cooling Fan GMV `188` (2-speed relays `234` & `235`, dropping resistor `244`, thermoswitch `119`)
+     * Automatic Transmission AD4 / DP0 (multifunction switch `485`, starter lockout)
+     * Alternator `103` & 12V Battery Charging Circuit
+   - Always reference the official Renault 3-digit component codes (`163`, `104`, `120`, `238`, `236`, `188`, `234`, `235`, `149`, `103`) and exact terminal/pin names (`Terminal 50`, `Terminal 30`, `Pin 66`, `Pin 33`, `Pin 1`, `Pin 2`) so the frontend can automatically mount live vector schematics and let the user inspect pins and test voltages.
 """
 
 

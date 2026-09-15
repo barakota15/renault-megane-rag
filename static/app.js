@@ -169,6 +169,55 @@ document.addEventListener('DOMContentLoaded', () => {
   const viewerOpenTab = document.getElementById('viewer-open-tab');
   const copyPageTextBtn = document.getElementById('copy-page-text-btn');
 
+  // Workstation Tabs & Layout Elements
+  const tabDashboard = document.getElementById('tab-dashboard');
+  const tabManuals = document.getElementById('tab-manuals');
+  const tabWiring = document.getElementById('tab-wiring');
+  const tabTorque = document.getElementById('tab-torque');
+  const tabDiag = document.getElementById('tab-diag');
+  const workstationGrid = document.getElementById('workstation-grid');
+  const panelWiring = document.getElementById('panel-wiring');
+  const panelManual = document.getElementById('panel-manual');
+  const panelTorque = document.getElementById('panel-torque');
+  const panelChat = document.getElementById('panel-chat');
+  const quickSearchInput = document.getElementById('quick-search-input');
+
+  // Left Rail Buttons
+  const railDashboard = document.getElementById('rail-dashboard');
+  const railEngine = document.getElementById('rail-engine');
+  const railGearbox = document.getElementById('rail-gearbox');
+  const railElectrical = document.getElementById('rail-electrical');
+  const railBody = document.getElementById('rail-body');
+
+  // Card 1: Technical Wiring Elements
+  const schematicImg = document.getElementById('schematic-img');
+  const wiringCircuitLabel = document.getElementById('wiring-circuit-label');
+  const wiringFullscreenBtn = document.getElementById('wiring-fullscreen-btn');
+  const wiringSchematicBox = document.getElementById('wiring-schematic-box');
+  const askAiCircuitBtn = document.getElementById('ask-ai-circuit-btn');
+  const circuitPills = document.querySelectorAll('.circuit-pill');
+  let currentWiringPage = 550;
+  let currentWiringLabel = "Engine Management System (Sirius 32 - K4M 16V)";
+
+  // Card 2: Mini Manual Viewer Elements
+  const miniPageImg = document.getElementById('mini-page-img');
+  const miniPageIndicator = document.getElementById('mini-page-indicator');
+  const miniViewerSectionTitle = document.getElementById('mini-viewer-section-title');
+  const miniPagePrev = document.getElementById('mini-page-prev');
+  const miniPageNext = document.getElementById('mini-page-next');
+  const miniOpenFullscreen = document.getElementById('mini-open-fullscreen');
+  const miniViewerBox = document.getElementById('mini-viewer-box');
+  let miniCurrentPage = 84;
+
+  // Card 3: Dynamic Torque Table Elements
+  const torqueEngineLabel = document.getElementById('torque-engine-label');
+  const editTorqueVehicleBtn = document.getElementById('edit-torque-vehicle-btn');
+  const torqueHeadBolts = document.getElementById('torque-head-bolts');
+  const torqueWheelBolts = document.getElementById('torque-wheel-bolts');
+  const torqueBrakeCalipers = document.getElementById('torque-brake-calipers');
+  const torqueSparkPlugs = document.getElementById('torque-spark-plugs');
+  const torqueSumpPlug = document.getElementById('torque-sump-plug');
+
   // Cache Welcome HTML for New Chat
   const welcomeHtml = chatMessages.innerHTML;
 
@@ -598,6 +647,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         const { contentEl, citationsEl } = createAssistantMessageContainer();
         contentEl.innerHTML = renderMarkdownWithInteractivePages(m.content);
+        hydrateRenderedContent(contentEl);
         if (m.citations && m.citations.length > 0) {
           renderCitationsPills(citationsEl, m.citations);
         }
@@ -762,6 +812,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (vehicleGearboxInput) vehicleGearboxInput.value = vehicleProfile.gearbox || "JB3";
     if (vehiclePhaseInput) vehiclePhaseInput.value = vehicleProfile.phase || "Phase 2 (1999-2002)";
     if (vehicleFuelInput) vehicleFuelInput.value = vehicleProfile.fuel || "Petrol Multipoint Injection";
+
+    // Update dynamic torque specs
+    updateTorqueTable();
   }
 
   function saveVehicleProfile() {
@@ -777,6 +830,341 @@ document.addEventListener('DOMContentLoaded', () => {
     updateVehicleUI();
     vehicleModal.classList.add('hidden');
     showToast(`Vehicle configured: ${vehicleProfile.engine} (${vehicleProfile.gearbox}) 🚗`);
+  }
+
+  // Factory Torque Tolerances Map
+  const TORQUE_SPECS = {
+    K4M: {
+      name: "1.6 16V K4M",
+      headBolts: "20 Nm + 240° ± 6°",
+      wheelBolts: "100 – 110 Nm",
+      calipers: "35 – 40 Nm",
+      plugs: "25 – 30 Nm",
+      sump: "20 Nm"
+    },
+    K7M: {
+      name: "1.6 8V K7M",
+      headBolts: "20 Nm + 100° + 100°",
+      wheelBolts: "100 – 110 Nm",
+      calipers: "35 – 40 Nm",
+      plugs: "25 – 30 Nm",
+      sump: "20 Nm"
+    },
+    E7J: {
+      name: "1.4 8V E7J / K4J",
+      headBolts: "20 Nm + 100° + 100°",
+      wheelBolts: "100 Nm",
+      calipers: "35 Nm",
+      plugs: "25 – 30 Nm",
+      sump: "20 Nm"
+    },
+    K4J: {
+      name: "1.4 16V K4J",
+      headBolts: "20 Nm + 240° ± 6°",
+      wheelBolts: "100 Nm",
+      calipers: "35 Nm",
+      plugs: "25 – 30 Nm",
+      sump: "20 Nm"
+    },
+    F3R: {
+      name: "2.0 8V F3R",
+      headBolts: "30 Nm + 50° + 107°",
+      wheelBolts: "110 Nm",
+      calipers: "40 Nm",
+      plugs: "25 – 30 Nm",
+      sump: "20 Nm"
+    },
+    F7R: {
+      name: "2.0 16V F7R (IDE)",
+      headBolts: "30 Nm + 80° + 80°",
+      wheelBolts: "110 Nm",
+      calipers: "40 Nm",
+      plugs: "25 – 30 Nm",
+      sump: "20 Nm"
+    },
+    F9Q: {
+      name: "1.9 dTi/dCi Diesel F9Q",
+      headBolts: "30 Nm + 100° + 100°",
+      wheelBolts: "110 Nm",
+      calipers: "40 Nm",
+      plugs: "Glow: 20 Nm",
+      sump: "20 Nm"
+    },
+    F8Q: {
+      name: "1.9 D/dT Diesel F8Q",
+      headBolts: "30 Nm + 100° + 100°",
+      wheelBolts: "110 Nm",
+      calipers: "40 Nm",
+      plugs: "Glow: 20 Nm",
+      sump: "20 Nm"
+    }
+  };
+
+  function updateTorqueTable() {
+    const engKey = (vehicleProfile.engine || "K4M").toUpperCase().trim();
+    const specs = TORQUE_SPECS[engKey] || TORQUE_SPECS["K4M"];
+    if (torqueEngineLabel) torqueEngineLabel.textContent = `Critical values for Mégane I: ${specs.name}`;
+    if (torqueHeadBolts) torqueHeadBolts.textContent = specs.headBolts;
+    if (torqueWheelBolts) torqueWheelBolts.textContent = specs.wheelBolts;
+    if (torqueBrakeCalipers) torqueBrakeCalipers.textContent = specs.calipers;
+    if (torqueSparkPlugs) torqueSparkPlugs.textContent = specs.plugs;
+    if (torqueSumpPlug) torqueSumpPlug.textContent = specs.sump;
+  }
+
+  // =========================================================
+  // Workstation Dashboard Interactions
+  // =========================================================
+
+  // =========================================================
+  // Workstation View Switching & Multi-View Layout Manager
+  // =========================================================
+
+  let currentInspectedPin = null;
+
+  function switchView(viewName) {
+    const views = {
+      chat: document.getElementById('view-chat'),
+      wiring: document.getElementById('view-wiring-studio'),
+      manuals: document.getElementById('view-manual-reader'),
+      torque: document.getElementById('view-torque-specs'),
+      dashboard: document.getElementById('view-dashboard')
+    };
+
+    // 1. Toggle visibility of view sections
+    Object.keys(views).forEach(k => {
+      if (views[k]) {
+        if (k === viewName) {
+          views[k].classList.remove('hidden');
+        } else {
+          views[k].classList.add('hidden');
+        }
+      }
+    });
+
+    // 2. Sync Top Navigation Tabs
+    const tabMap = {
+      chat: tabDiag,
+      wiring: tabWiring,
+      manuals: tabManuals,
+      torque: tabTorque,
+      dashboard: tabDashboard
+    };
+
+    [tabDiag, tabWiring, tabManuals, tabTorque, tabDashboard].forEach(tab => {
+      if (tab) {
+        tab.classList.remove('active', 'bg-amber-500', 'text-dark-950', 'font-bold', 'shadow-sm');
+        tab.classList.add('text-slate-400');
+      }
+    });
+
+    if (tabMap[viewName]) {
+      tabMap[viewName].classList.add('active', 'bg-amber-500', 'text-dark-950', 'font-bold', 'shadow-sm');
+      tabMap[viewName].classList.remove('text-slate-400');
+    }
+
+    // 3. Sync Left Rail Buttons
+    const railMap = {
+      chat: railDashboard,
+      wiring: railElectrical,
+      manuals: railBody,
+      torque: railEngine
+    };
+
+    [railDashboard, railElectrical, railEngine, railGearbox, railBody].forEach(rail => {
+      if (rail) {
+        rail.classList.remove('active', 'bg-amber-500/15', 'text-amber-300', 'border-amber-500/30');
+        rail.classList.add('text-slate-400', 'border-transparent');
+      }
+    });
+
+    if (railMap[viewName]) {
+      railMap[viewName].classList.add('active', 'bg-amber-500/15', 'text-amber-300', 'border-amber-500/30');
+      railMap[viewName].classList.remove('text-slate-400', 'border-transparent');
+    }
+
+    // 4. View-specific activations
+    if (viewName === 'wiring') {
+      const studioMount = document.getElementById('studio-schematic-mount');
+      if (studioMount && (!studioMount.dataset.renderedCircuit || studioMount.children.length === 0)) {
+        const activePill = document.querySelector('#studio-circuit-pills .studio-pill.active');
+        const cId = activePill ? activePill.dataset.circuit : 'starter_circuit';
+        if (window.SchematicsEngine) {
+          window.SchematicsEngine.renderWidget(cId, studioMount);
+          studioMount.dataset.renderedCircuit = cId;
+        }
+      }
+    } else if (viewName === 'chat') {
+      if (userInput) userInput.focus();
+    } else if (viewName === 'manuals') {
+      const readerImg = document.getElementById('manual-reader-img');
+      if (readerImg) {
+        readerImg.src = `/api/pdf/render/${miniCurrentPage || 84}`;
+      }
+    }
+
+    lucide.createIcons();
+  }
+
+  window.switchView = switchView;
+
+  window.openStudioWithCircuit = function(circuitId) {
+    switchView('wiring');
+    const targetPill = document.querySelector(`.studio-pill[data-circuit="${circuitId}"]`);
+    if (targetPill) {
+      targetPill.click();
+    } else {
+      const studioMount = document.getElementById('studio-schematic-mount');
+      if (studioMount && window.SchematicsEngine) {
+        window.SchematicsEngine.renderWidget(circuitId, studioMount);
+        studioMount.dataset.renderedCircuit = circuitId;
+      }
+    }
+  };
+
+  // Pin Inspector Modal Handler
+  window.showPinInspectorModal = function(pinData) {
+    if (!pinData) return;
+    currentInspectedPin = pinData;
+    const modal = document.getElementById('pin-inspector-modal');
+    if (!modal) return;
+
+    const pinEl = document.getElementById('pin-modal-pin');
+    const voltEl = document.getElementById('pin-modal-voltage');
+    const wireEl = document.getElementById('pin-modal-wire');
+    const noteEl = document.getElementById('pin-modal-note');
+    const subEl = document.getElementById('pin-modal-subtitle');
+
+    if (pinEl) pinEl.textContent = `${pinData.id} (${pinData.label || ''})`;
+    if (voltEl) voltEl.textContent = pinData.voltage || '-';
+    if (wireEl) wireEl.textContent = pinData.wire || '-';
+    if (noteEl) noteEl.textContent = pinData.note || 'Renault OEM Factory Electrical Diagnostic Standard.';
+    if (subEl) subEl.textContent = `Renault Mégane I Electrical Standard • ${pinData.id}`;
+
+    modal.classList.remove('hidden');
+    lucide.createIcons();
+  };
+
+  function initWorkstationInteractions() {
+    // 1. Studio Circuit Pills (Dedicated Interactive Studio)
+    const studioPills = document.querySelectorAll('#studio-circuit-pills .studio-pill');
+    if (studioPills && studioPills.length > 0) {
+      studioPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          studioPills.forEach(p => {
+            p.classList.remove('active', 'bg-amber-500/20', 'text-amber-300', 'border-amber-500/40', 'font-bold');
+            p.classList.add('bg-[#141c2e]', 'text-slate-300', 'border-slate-800', 'font-medium');
+          });
+          pill.classList.remove('bg-[#141c2e]', 'text-slate-300', 'border-slate-800', 'font-medium');
+          pill.classList.add('active', 'bg-amber-500/20', 'text-amber-300', 'border-amber-500/40', 'font-bold');
+
+          const circuitId = pill.dataset.circuit;
+          const studioMount = document.getElementById('studio-schematic-mount');
+          if (studioMount && window.SchematicsEngine) {
+            window.SchematicsEngine.renderWidget(circuitId, studioMount);
+            studioMount.dataset.renderedCircuit = circuitId;
+          }
+        });
+      });
+    }
+
+    // 2. Pin Inspector Modal Close & Ask AI Buttons
+    const closePinModalBtn = document.getElementById('close-pin-modal-btn');
+    if (closePinModalBtn) {
+      closePinModalBtn.addEventListener('click', () => {
+        document.getElementById('pin-inspector-modal').classList.add('hidden');
+      });
+    }
+
+    const pinAskAiBtn = document.getElementById('pin-ask-ai-btn');
+    if (pinAskAiBtn) {
+      pinAskAiBtn.addEventListener('click', () => {
+        document.getElementById('pin-inspector-modal').classList.add('hidden');
+        switchView('chat');
+        if (currentInspectedPin) {
+          userInput.value = `How do I diagnose and test ${currentInspectedPin.id} (${currentInspectedPin.label}) with expected voltage ${currentInspectedPin.voltage} and wire ${currentInspectedPin.wire}? What are the symptoms if this circuit fails?`;
+          userInput.style.height = 'auto';
+          userInput.style.height = Math.min(userInput.scrollHeight, 140) + 'px';
+          userInput.focus();
+        }
+      });
+    }
+
+    // 3. Top Navigation Tabs
+    if (tabDiag) tabDiag.addEventListener('click', () => switchView('chat'));
+    if (tabWiring) tabWiring.addEventListener('click', () => switchView('wiring'));
+    if (tabManuals) tabManuals.addEventListener('click', () => switchView('manuals'));
+    if (tabTorque) tabTorque.addEventListener('click', () => switchView('torque'));
+    if (tabDashboard) tabDashboard.addEventListener('click', () => switchView('dashboard'));
+
+    // 4. Left Rail Navigation Buttons
+    if (railDashboard) railDashboard.addEventListener('click', () => switchView('chat'));
+    if (railElectrical) railElectrical.addEventListener('click', () => switchView('wiring'));
+    if (railEngine) railEngine.addEventListener('click', () => switchView('torque'));
+    if (railGearbox) {
+      railGearbox.addEventListener('click', () => {
+        switchView('chat');
+        if (sectionFilter) sectionFilter.value = '21 - Manual Gearbox';
+        userInput.value = `What is the gear oil specification and capacity for the ${vehicleProfile.gearbox} gearbox?`;
+        userInput.style.height = 'auto';
+        userInput.style.height = Math.min(userInput.scrollHeight, 140) + 'px';
+        userInput.focus();
+      });
+    }
+    if (railBody) railBody.addEventListener('click', () => switchView('manuals'));
+
+    // 5. Mini Manual Reader in Dashboard (Card 2)
+    function updateMiniViewer(pageNum) {
+      miniCurrentPage = Math.max(1, Math.min(pageNum, 2492));
+      if (miniPageIndicator) miniPageIndicator.textContent = `p.${miniCurrentPage}`;
+      if (miniPageImg) miniPageImg.src = `/api/pdf/render/${miniCurrentPage}`;
+      fetch(`/api/pdf/page-info/${miniCurrentPage}`)
+        .then(res => res.json())
+        .then(info => {
+          if (miniViewerSectionTitle && info.section) {
+            miniViewerSectionTitle.textContent = `Page ${miniCurrentPage}: ${info.section}`;
+          }
+        })
+        .catch(() => {});
+    }
+
+    if (miniPagePrev) {
+      miniPagePrev.addEventListener('click', () => updateMiniViewer(miniCurrentPage - 1));
+    }
+    if (miniPageNext) {
+      miniPageNext.addEventListener('click', () => updateMiniViewer(miniCurrentPage + 1));
+    }
+    if (miniOpenFullscreen) {
+      miniOpenFullscreen.addEventListener('click', () => openPageViewer(miniCurrentPage));
+    }
+    if (miniViewerBox) {
+      miniViewerBox.addEventListener('click', () => openPageViewer(miniCurrentPage));
+    }
+
+    // 6. Torque Spec edit vehicle button (Card 3)
+    if (editTorqueVehicleBtn) {
+      editTorqueVehicleBtn.addEventListener('click', () => {
+        vehicleModal.classList.remove('hidden');
+      });
+    }
+
+    // 7. Subheader Quick Search Input
+    if (quickSearchInput) {
+      quickSearchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const query = quickSearchInput.value.trim();
+          if (query) {
+            switchView('chat');
+            userInput.value = query;
+            quickSearchInput.value = '';
+            chatForm.dispatchEvent(new Event('submit'));
+          }
+        }
+      });
+    }
+
+    // Default view: Chat
+    switchView('chat');
   }
 
   // Handle Preset dropdown change
@@ -981,24 +1369,165 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  function detectCircuitForPageOrText(pId, text) {
+    const combined = `${pId || ''} ${text || ''}`.toLowerCase();
+
+    // 1. Starter motor 163 & Neiman 104 & starter bypass switch
+    if (['92', '93', '94', '95', '330', '331', '332'].includes(String(pId)) ||
+        combined.includes('starter') || combined.includes('163') || combined.includes('neiman') ||
+        combined.includes('مارش') || combined.includes('سويتش') || combined.includes('كونتاك') ||
+        combined.includes('solenoid') || combined.includes('بادئ') || combined.includes('توصيلة مارش') ||
+        combined.includes('زر تشغيل')) {
+      return 'starter_circuit';
+    }
+
+    // 2. Sirius 32 / Injection ECU 120
+    if (['550', '551', '552', '553', '554', '555', '370', '371'].includes(String(pId)) ||
+        combined.includes('sirius') || combined.includes('fenix') || combined.includes('120') ||
+        combined.includes('كنترول') || combined.includes('ecu') || combined.includes('بخاخات') ||
+        combined.includes('رشاشات') || combined.includes('pmh') || combined.includes('حساس كرنك') ||
+        combined.includes('relay 238') || combined.includes('relay 236')) {
+      return 'sirius32_ecu';
+    }
+
+    // 3. GMV Cooling fan 188
+    if (['244', '245', '246', '247', '248'].includes(String(pId)) ||
+        combined.includes('cooling fan') || combined.includes('gmv') || combined.includes('188') ||
+        combined.includes('مروحة') || combined.includes('تبريد') || combined.includes('relay 234') ||
+        combined.includes('relay 235') || combined.includes('thermoswitch') || combined.includes('ترمستات')) {
+      return 'cooling_fan';
+    }
+
+    // 4. Automatic Transmission AD4 / DP0
+    if (['378', '379', '380', '410'].includes(String(pId)) ||
+        combined.includes('ad4') || combined.includes('dp0') || combined.includes('فتيس') ||
+        combined.includes('ناقل حركة') || combined.includes('automatic transmission') || combined.includes('multifunction')) {
+      return 'transmission_ad4_dp0';
+    }
+
+    // 5. Alternator 103 Charging
+    if (['90', '91', '103', '104'].includes(String(pId)) ||
+        combined.includes('alternator') || combined.includes('103') || combined.includes('دينامو') ||
+        combined.includes('شحن') || combined.includes('charging system')) {
+      return 'alternator_charging';
+    }
+
+    return null;
+  }
+
+  let schematicCardCounter = 0;
+
   function createDiagramCard(pId, caption) {
     const safeCaption = (caption || `Renault Manual Diagram - Page ${pId}`).trim();
+    const circuitId = detectCircuitForPageOrText(pId, caption);
+
+    if (circuitId && window.SchematicsEngine) {
+      schematicCardCounter++;
+      const uid = `chat-circuit-${schematicCardCounter}-${Date.now()}`;
+      const defaultPages = {
+        starter_circuit: 92,
+        sirius32_ecu: 550,
+        cooling_fan: 245,
+        transmission_ad4_dp0: 378,
+        alternator_charging: 90
+      };
+      const displayPage = (pId && pId !== 'circuit') ? pId : (defaultPages[circuitId] || 92);
+
+      const circuitNames = {
+        starter_circuit: "⚡ Starter Motor 163 & Ignition 104 (Interactive Circuit & External Bypass Mod)",
+        sirius32_ecu: "⚙️ Sirius 32 Engine ECU 120 & Sequential Injection",
+        cooling_fan: "❄️ GMV Cooling Fan 188 (2-Speed Dual Relay System)",
+        transmission_ad4_dp0: "🕹️ AD4 / DP0 Automatic Gearbox & Starter Interlock",
+        alternator_charging: "🔋 Alternator 103 & 12V Battery Charging Circuit"
+      };
+      const title = circuitNames[circuitId] || "Renault Interactive Vector Schematic";
+
+      return `
+        <div class="my-4 rounded-2xl border border-amber-500/40 bg-[#0e1422] shadow-2xl overflow-hidden digital-schematic-card" data-circuit="${circuitId}">
+          <div class="px-3.5 sm:px-4 py-2.5 bg-[#121929] border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-[10px] font-bold tracking-wide">DIGITAL VECTOR 4K</span>
+              <span class="font-bold text-white flex items-center gap-1.5">
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>${escapeHtml(title)}</span>
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button type="button" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-medium transition cursor-pointer toggle-scan-btn" data-target="scan-${uid}">
+                <i data-lucide="file-text" class="w-3 h-3 text-slate-400"></i> Compare OEM Scan (p.${displayPage})
+              </button>
+              <button type="button" onclick="openStudioWithCircuit('${circuitId}')" class="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-[11px] font-bold flex items-center gap-1 transition cursor-pointer">
+                <i data-lucide="maximize-2" class="w-3 h-3"></i> Open Studio ↗
+              </button>
+            </div>
+          </div>
+          <div class="chat-schematic-mount p-2 sm:p-4 bg-slate-950" id="${uid}" data-circuit-id="${circuitId}">
+            <!-- SchematicsEngine mounts here -->
+          </div>
+          <div id="scan-${uid}" class="hidden p-3 bg-[#0b0f19] border-t border-slate-800 text-center">
+            <div class="text-[11px] text-slate-400 mb-2 font-mono flex items-center justify-center gap-2">
+              <span>Original Factory Workshop Manual Scan (Page ${displayPage})</span>
+              <button type="button" onclick="openPageViewer('${displayPage}')" class="text-amber-400 hover:underline text-[10px]">Open in Full Reader ↗</button>
+            </div>
+            <img src="/api/pdf/render/${displayPage}" alt="${escapeHtml(safeCaption)}" class="max-h-80 mx-auto rounded-lg object-contain cursor-pointer transition hover:scale-[1.01]" onclick="openPageViewer('${displayPage}')" loading="lazy">
+          </div>
+        </div>
+      `;
+    }
+
     return `
       <div class="my-4 rounded-xl border border-amber-500/40 bg-dark-900/90 overflow-hidden shadow-xl group">
         <div class="px-3.5 py-2.5 bg-dark-850 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
           <span class="font-semibold text-amber-300 flex items-center gap-1.5 truncate max-w-sm">
             <i data-lucide="image" class="w-3.5 h-3.5 text-amber-400 shrink-0"></i>
-            <span>${safeCaption}</span>
+            <span>${escapeHtml(safeCaption)}</span>
           </span>
           <button type="button" onclick="openPageViewer('${pId}')" class="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-[11px] font-bold flex items-center gap-1 transition cursor-pointer">
             <i data-lucide="maximize-2" class="w-3 h-3"></i> Full Page ${pId} ↗
           </button>
         </div>
         <div class="p-2.5 bg-slate-950 flex justify-center cursor-pointer relative" onclick="openPageViewer('${pId}')" title="Click to view Page ${pId} in high resolution">
-          <img src="/api/pdf/render/${pId}" alt="${safeCaption}" class="max-h-96 rounded-lg object-contain transition-transform duration-200 group-hover:scale-[1.01]" loading="lazy">
+          <img src="/api/pdf/render/${pId}" alt="${escapeHtml(safeCaption)}" class="max-h-96 rounded-lg object-contain transition-transform duration-200 group-hover:scale-[1.01]" loading="lazy">
         </div>
       </div>
     `;
+  }
+
+  function hydrateRenderedContent(container) {
+    if (!container) return;
+
+    // 1. Mount any uninitialized interactive schematics
+    container.querySelectorAll('.chat-schematic-mount').forEach(mount => {
+      const cId = mount.dataset.circuitId;
+      if (cId && window.SchematicsEngine && !mount.dataset.initialized) {
+        window.SchematicsEngine.renderWidget(cId, mount, {
+          showTitle: false,
+          showPins: true,
+          showControls: true
+        });
+        mount.dataset.initialized = 'true';
+      }
+    });
+
+    // 2. Wire scan toggle buttons
+    container.querySelectorAll('.toggle-scan-btn').forEach(btn => {
+      if (!btn.dataset.bound) {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const targetId = btn.dataset.target;
+          const drawer = document.getElementById(targetId);
+          if (drawer) {
+            drawer.classList.toggle('hidden');
+            btn.classList.toggle('bg-amber-500/20');
+            btn.classList.toggle('text-amber-300');
+          }
+        });
+        btn.dataset.bound = 'true';
+      }
+    });
+
+    // 3. Initialize icons
+    lucide.createIcons();
   }
 
   // Helper: Format Markdown with Interactive Clickable Page Citations & Diagram Cards
@@ -1343,7 +1872,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (rawMarkdown) {
         contentEl.innerHTML = renderMarkdownWithInteractivePages(rawMarkdown);
-        lucide.createIcons();
+        hydrateRenderedContent(contentEl);
+
+        // Auto-embed schematic if circuit discussed but no diagram card was rendered
+        const queryText = (conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1]?.role === 'user') 
+          ? conversationHistory[conversationHistory.length - 1].content 
+          : '';
+        const detectedCircuit = detectCircuitForPageOrText('', rawMarkdown + ' ' + queryText);
+        if (detectedCircuit && contentEl.querySelectorAll('.chat-schematic-mount').length === 0) {
+          const autoCardContainer = document.createElement('div');
+          autoCardContainer.innerHTML = createDiagramCard('circuit', detectedCircuit);
+          if (autoCardContainer.firstElementChild) {
+            contentEl.appendChild(autoCardContainer.firstElementChild);
+            hydrateRenderedContent(contentEl);
+          }
+        }
+
         // Record assistant response into conversation history
         conversationHistory.push({
           role: "assistant",
@@ -1351,6 +1895,7 @@ document.addEventListener('DOMContentLoaded', () => {
           citations: currentCitations
         });
         updateContextMeter();
+        chatMessages.scrollTop = chatMessages.scrollHeight;
       }
 
     } catch (err) {
@@ -1458,4 +2003,5 @@ document.addEventListener('DOMContentLoaded', () => {
   checkStatus();
   updateSavedChatsCount();
   updateContextMeter();
+  initWorkstationInteractions();
 });

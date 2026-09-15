@@ -189,3 +189,95 @@
 #viewer-img-wrapper img:active {
   cursor: grabbing;
 }
+
+/* =========================================================
+   Workstation Dashboard Active States & Nav
+   ========================================================= */
+
+.workstation-tab.active {
+  background-color: #f59e0b !important;
+  color: #0b0f19 !important;
+  font-weight: 700 !important;
+}
+
+.workstation-tab:not(.active) {
+  color: #94a3b8;
+}
+
+.workstation-tab:not(.active):hover {
+  color: #ffffff;
+  background-color: rgba(30, 41, 59, 0.6);
+}
+
+.rail-nav-btn.active {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+  color: #fde68a !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+.circuit-pill.active {
+  background-color: rgba(245, 158, 11, 0.2) !important;
+  color: #fde68a !important;
+  border-color: rgba(245, 158, 11, 0.5) !important;
+  font-weight: 600 !important;
+}
+
+/* Dashboard card styling */
+.dashboard-card {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-card:hover {
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+/* =========================================================
+   Digital Vector Schematics & Interactive Studio Styling
+   ========================================================= */
+
+.digital-schematic-card {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.digital-schematic-card:hover {
+  border-color: rgba(245, 158, 11, 0.55);
+  box-shadow: 0 15px 35px -10px rgba(245, 158, 11, 0.15);
+}
+
+.schematic-svg-mount svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  shape-rendering: geometricPrecision;
+  text-rendering: geometricPrecision;
+  user-select: none;
+}
+
+@keyframes electron-pulse {
+  from { stroke-dashoffset: 24; }
+  to { stroke-dashoffset: 0; }
+}
+
+.wire-live {
+  stroke-dasharray: 6 4;
+  animation: electron-pulse 0.8s linear infinite;
+}
+
+.pin-pill {
+  transition: all 0.15s ease-out;
+}
+
+.pin-pill:hover {
+  transform: translateY(-1px);
+  border-color: rgba(245, 158, 11, 0.6);
+}
+
+.temp-slider {
+  accent-color: #f59e0b;
+}
+
+/* BiDi Pin inspector popover & details */
+#pin-inspector-modal {
+  backdrop-filter: blur(8px);
+}
+

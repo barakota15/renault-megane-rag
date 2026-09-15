@@ -35,50 +35,57 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Marked.js for Markdown parsing -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Digital Interactive Schematics Engine -->
+  <script src="/static/schematics.js"></script>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body class="h-full flex flex-col font-sans antialiased bg-dark-950 text-slate-200 overflow-hidden">
 
-  <!-- Top Navigation Bar -->
-  <header class="border-b border-slate-800/80 bg-dark-900/90 backdrop-blur-md px-6 py-3.5 flex items-center justify-between z-20">
+  <!-- Top Navigation Bar Matching Preview Image -->
+  <header class="border-b border-slate-800/80 bg-[#0b0f19] px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 z-30 shrink-0">
+    <!-- Brand Logo & Title -->
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 text-dark-950 font-black text-xl">
-        <i data-lucide="wrench" class="w-5 h-5 text-dark-950"></i>
+      <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-md shadow-amber-500/10">
+        <svg class="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L3.5 12 12 22l8.5-10L12 2z"/>
+          <path d="M12 6.5L7 12l5 5.5 5-5.5L12 6.5z"/>
+        </svg>
       </div>
       <div>
         <div class="flex items-center gap-2">
-          <h1 class="font-bold text-lg tracking-tight text-white">Renault Mégane I</h1>
-          <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 font-medium">1995 – 2002</span>
-          <span class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 font-mono">Factory Manual RAG</span>
+          <h1 class="font-bold text-sm sm:text-base tracking-wider text-white uppercase">RENAULT MÉGANE I <span class="text-slate-400 font-normal text-xs">(1995–2002)</span></h1>
+          <span class="hidden sm:inline text-[10px] px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30 font-mono font-bold tracking-wide">WORKSHOP MANUAL</span>
         </div>
-        <p class="text-xs text-slate-400">Technical Workshop & Service Manual AI Assistant</p>
       </div>
     </div>
 
-    <!-- Vehicle Profile & Chat Actions Nav Section -->
-    <div class="flex items-center gap-2.5">
-      
-      <!-- Active Vehicle Profile Selector Button -->
-      <button id="vehicle-profile-btn" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium transition shadow-sm" title="Configure your car (Engine & Gearbox)">
-        <i data-lucide="car" class="w-4 h-4 text-amber-400"></i>
-        <div class="text-left hidden sm:block">
-          <div class="text-[9px] text-amber-400/70 uppercase tracking-wider font-semibold">Active Vehicle</div>
-          <div id="header-vehicle-badge" class="font-bold text-slate-200">1.6 16V K4M • JB3 Manual</div>
-        </div>
-        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-amber-400/80 ml-0.5"></i>
+    <!-- Navigation Tabs -->
+    <nav class="flex items-center gap-1 bg-[#101726] border border-slate-800 rounded-xl p-1 text-xs font-semibold">
+      <button type="button" id="tab-diag" class="workstation-tab active px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 transition text-dark-950 bg-amber-500 font-bold shadow-sm" title="AI Diagnostic Assistant">
+        <i data-lucide="message-square-code" class="w-3.5 h-3.5"></i>
+        <span>Diag & Chat</span>
       </button>
+      <button type="button" id="tab-wiring" class="workstation-tab px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition flex items-center gap-1.5" title="Digital Interactive Wiring Studio">
+        <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
+        <span>WIRING Studio</span>
+      </button>
+      <button type="button" id="tab-manuals" class="workstation-tab px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition flex items-center gap-1.5" title="Full PDF Manual Viewer">
+        <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+        <span>Manuals</span>
+      </button>
+      <button type="button" id="tab-torque" class="workstation-tab px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition flex items-center gap-1.5" title="Torque Specifications & Tolerances">
+        <i data-lucide="gauge" class="w-3.5 h-3.5"></i>
+        <span>TORQUE</span>
+      </button>
+      <button type="button" id="tab-dashboard" class="workstation-tab px-3 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition flex items-center gap-1.5" title="Multi-widget Overview">
+        <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+        <span>Dashboard</span>
+      </button>
+    </nav>
 
-      <!-- Index Status Indicator -->
-      <div id="index-status-badge" class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs">
-        <span id="status-pulse" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-        <span id="status-text" class="text-slate-300">Ready</span>
-        <button id="reindex-btn" class="hidden ml-1 hover:text-amber-400 transition" title="Re-build Index">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-        </button>
-      </div>
-
-      <!-- Provider Selector -->
-      <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-800 rounded-lg p-1">
+    <!-- Top Right Controls: Provider & Settings -->
+    <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1.5 bg-[#101726] border border-slate-800 rounded-lg p-1">
         <select id="provider-select" class="bg-transparent text-xs text-slate-300 font-medium focus:outline-none px-2 py-1 cursor-pointer">
           <option value="gemini" class="bg-dark-900">Google Gemini (Flash)</option>
           <option value="groq" class="bg-dark-900">Groq (Llama 3.3 70B)</option>
@@ -86,256 +93,461 @@
           <option value="ollama" class="bg-dark-900">Local Ollama</option>
         </select>
         <button id="settings-btn" class="p-1.5 hover:bg-slate-800 rounded-md text-slate-400 hover:text-slate-200 transition" title="API Keys & Settings">
-          <i data-lucide="settings" class="w-4 h-4"></i>
+          <i data-lucide="sliders" class="w-4 h-4"></i>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Main Container -->
+  <!-- Workstation Sub-Header Matching Preview Image -->
+  <div class="border-b border-slate-800/80 bg-[#0e1422] px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-3 text-xs z-20 shrink-0">
+    <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+      <!-- Active Vehicle Button -->
+      <button id="vehicle-profile-btn" class="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#141c2e] hover:bg-slate-800 border border-slate-700/80 text-xs text-slate-200 font-medium transition shadow-sm" title="Configure your car (Engine & Gearbox)">
+        <span class="text-slate-400">Vehicle:</span>
+        <span id="header-vehicle-badge" class="font-bold text-amber-300">Mégane I 1.6 16V K4M • JB3</span>
+        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-amber-400/80"></i>
+      </button>
+
+      <!-- Online Status Badge -->
+      <div id="index-status-badge" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 font-medium text-xs">
+        <span id="status-pulse" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span id="status-text">Online</span>
+        <button id="reindex-btn" class="hidden ml-1 hover:text-amber-400 transition" title="Re-build Index">
+          <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+        </button>
+      </div>
+
+      <!-- Manual Loaded Pill -->
+      <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#141c2e] border border-slate-800 text-slate-400 text-xs">
+        <i data-lucide="folder-check" class="w-3.5 h-3.5 text-amber-400"></i>
+        <span>Manual loaded (2,492 Pages)</span>
+      </div>
+    </div>
+
+    <!-- Diagnostics Search Box -->
+    <div class="flex items-center gap-2">
+      <div class="relative flex items-center">
+        <i data-lucide="search" class="w-3.5 h-3.5 text-slate-500 absolute left-2.5"></i>
+        <input type="text" id="quick-search-input" placeholder="Search diagnostics..." class="w-40 sm:w-56 bg-[#101726] border border-slate-800 rounded-lg pl-8 pr-3 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition">
+      </div>
+    </div>
+  </div>
+
+  <!-- Ingestion Progress Banner (hidden by default) -->
+  <div id="ingestion-banner" class="hidden bg-amber-950/40 border-b border-amber-500/30 px-6 py-2.5 text-xs flex items-center justify-between shrink-0">
+    <div class="flex items-center gap-3 flex-1 mr-4">
+      <i data-lucide="loader" class="w-4 h-4 text-amber-400 animate-spin"></i>
+      <div class="flex-1">
+        <div class="flex justify-between mb-1">
+          <span id="ingestion-msg" class="text-amber-200 font-medium">Extracting and indexing workshop manual...</span>
+          <span id="ingestion-pct" class="text-amber-400 font-mono font-bold">0%</span>
+        </div>
+        <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+          <div id="ingestion-bar" class="bg-amber-500 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Workstation Layout -->
   <div class="flex-1 flex overflow-hidden">
     
-    <!-- Sidebar: Manual Topics & Filters -->
-    <aside class="w-80 border-r border-slate-800/80 bg-dark-900/50 flex flex-col justify-between hidden md:flex">
-      
-      <!-- Section Filter & Quick Actions -->
-      <div class="p-4 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
-        
-        <!-- Conversation Controls Card -->
-        <div class="space-y-2 pb-3.5 border-b border-slate-800/80">
-          <button id="new-chat-btn" class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-dark-950 font-bold text-xs transition shadow-md shadow-amber-500/20 active:scale-[0.98]">
-            <i data-lucide="plus-circle" class="w-4 h-4"></i>
-            <span>New Conversation</span>
+    <!-- Left Navigation Rail -->
+    <aside class="w-16 md:w-48 border-r border-slate-800/80 bg-[#0b0f19] flex flex-col justify-between shrink-0 select-none z-10">
+      <div class="p-2 space-y-1.5">
+        <button type="button" id="rail-dashboard" class="rail-nav-btn active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-xs transition bg-amber-500/15 text-amber-300 border border-amber-500/30" title="AI Diagnostic Assistant">
+          <i data-lucide="message-square-code" class="w-4 h-4 text-amber-400 shrink-0"></i>
+          <span class="hidden md:inline font-bold">Diag & Chat</span>
+        </button>
+        <button type="button" id="rail-electrical" class="rail-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition border border-transparent" title="Interactive Digital Wiring Studio">
+          <i data-lucide="zap" class="w-4 h-4 text-amber-400/80 shrink-0"></i>
+          <span class="hidden md:inline">Wiring Studio</span>
+        </button>
+        <button type="button" id="rail-engine" class="rail-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition border border-transparent" title="Engine Specs & Torque">
+          <i data-lucide="wrench" class="w-4 h-4 text-amber-400/80 shrink-0"></i>
+          <span class="hidden md:inline">Engine & Torque</span>
+        </button>
+        <button type="button" id="rail-gearbox" class="rail-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition border border-transparent" title="Gearbox & Transmission">
+          <i data-lucide="settings-2" class="w-4 h-4 text-amber-400/80 shrink-0"></i>
+          <span class="hidden md:inline">Gearbox</span>
+        </button>
+        <button type="button" id="rail-body" class="rail-nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition border border-transparent" title="Factory Manuals">
+          <i data-lucide="book-open" class="w-4 h-4 text-amber-400/80 shrink-0"></i>
+          <span class="hidden md:inline">Manuals</span>
+        </button>
+
+        <div class="pt-3 border-t border-slate-800/80 space-y-1.5">
+          <button type="button" id="new-chat-btn" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-dark-950 font-bold text-xs transition shadow-md shadow-amber-500/20 active:scale-95" title="Start New Conversation">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span class="hidden md:inline">New Chat</span>
           </button>
-          <div class="grid grid-cols-2 gap-2">
-            <button id="save-chat-btn" class="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-lg bg-dark-850 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-amber-300 text-xs font-medium transition" title="Save current chat session">
-              <i data-lucide="bookmark" class="w-3.5 h-3.5 text-amber-400"></i>
-              <span>Save Chat</span>
-            </button>
-            <button id="saved-chats-btn" class="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-lg bg-dark-850 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white text-xs font-medium transition" title="View saved chats">
-              <i data-lucide="folder" class="w-3.5 h-3.5 text-amber-400"></i>
-              <span>Saved (<span id="saved-chats-count-badge">0</span>)</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Active Car Configuration Card -->
-        <div class="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
-              <i data-lucide="cpu" class="w-3 h-3"></i> Configured Car
-            </span>
-            <button id="sidebar-edit-vehicle-btn" class="text-[10px] text-amber-400 hover:text-amber-300 font-semibold underline">Edit</button>
-          </div>
-          <div class="space-y-1 text-xs">
-            <div class="flex justify-between text-slate-300">
-              <span class="text-slate-500">Engine:</span>
-              <span id="sidebar-engine" class="font-mono font-bold text-amber-300">K4M (1.6L 16V)</span>
+          <button type="button" id="saved-chats-btn" class="rail-nav-btn w-full flex items-center justify-between px-3 py-2 rounded-xl font-medium text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition border border-transparent" title="View Saved Sessions">
+            <div class="flex items-center gap-3">
+              <i data-lucide="folder" class="w-4 h-4 text-amber-400/80 shrink-0"></i>
+              <span class="hidden md:inline">Saved</span>
             </div>
-            <div class="flex justify-between text-slate-300">
-              <span class="text-slate-500">Gearbox:</span>
-              <span id="sidebar-gearbox" class="font-mono text-slate-200">JB3 (5-Speed Manual)</span>
-            </div>
-            <div class="flex justify-between text-slate-300">
-              <span class="text-slate-500">Phase/Year:</span>
-              <span id="sidebar-phase" class="font-mono text-slate-400">Phase 2 (1999-2002)</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Section Filter -->
-        <div>
-          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Filter by Chapter</label>
-          <div class="relative">
-            <select id="section-filter" class="w-full bg-dark-850 border border-slate-700/80 rounded-lg px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-amber-500 appearance-none cursor-pointer">
-              <option value="all">📖 All Manual Sections</option>
-              <option value="10 - Engine">🔧 10 - Engine & Peripherals</option>
-              <option value="11 - Top & Front">⚙️ 11 - Top & Front of Engine / Timing</option>
-              <option value="12 - Fuel">⛽ 12 - Fuel Injection & Mixture</option>
-              <option value="19 - Cooling">❄️ 19 - Cooling & Radiator</option>
-              <option value="20 - Clutch">🔄 20 - Clutch & Flywheel</option>
-              <option value="21 - Manual Gearbox">🕹️ 21 - JB3 / JC5 Gearbox</option>
-              <option value="37 - Braking">🛑 37 - Brakes & Hydraulics</option>
-              <option value="80 - Electrical">⚡ 80 - Electrical & Fuses</option>
-            </select>
-            <div class="absolute right-3 top-2.5 pointer-events-none text-slate-400">
-              <i data-lucide="chevron-down" class="w-4 h-4"></i>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Topics Section -->
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Quick Repair Guides</label>
-            <span class="text-[10px] text-amber-400/80 font-mono">1-Click</span>
-          </div>
-          <div id="quick-topics-container" class="space-y-2">
-            <!-- Populated via JS -->
-            <div class="animate-pulse bg-slate-800/50 h-14 rounded-lg"></div>
-            <div class="animate-pulse bg-slate-800/50 h-14 rounded-lg"></div>
-            <div class="animate-pulse bg-slate-800/50 h-14 rounded-lg"></div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Manual File Info Footer -->
-      <div class="p-3.5 border-t border-slate-800 bg-dark-950/60 text-xs space-y-1.5">
-        <div class="flex items-center justify-between text-slate-400">
-          <span class="flex items-center gap-1.5">
-            <i data-lucide="file-text" class="w-3.5 h-3.5 text-amber-500"></i>
-            <span class="truncate max-w-[160px]" title="renault-megane-1995-2002-factory-workshop-service-manual.pdf">Factory Manual.pdf</span>
-          </span>
-          <span id="manual-size" class="text-slate-500 font-mono">32.5 MB</span>
-        </div>
-        <div class="flex items-center justify-between text-[11px] text-slate-500">
-          <span>Engine Codes:</span>
-          <span class="text-slate-400 font-mono">K7M, K4M, F8Q, F9Q</span>
+            <span id="saved-chats-count-badge" class="hidden md:inline px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-400 font-mono text-[10px]">0</span>
+          </button>
         </div>
       </div>
 
+      <!-- Footer Vehicle Badge in Rail -->
+      <div class="p-3 border-t border-slate-800/80 hidden md:block text-[11px] text-slate-500 space-y-1">
+        <div class="text-amber-400/80 font-bold">Mégane I Phase 2</div>
+        <div class="text-slate-400 font-mono">1.6L 16V (K4M)</div>
+      </div>
+
+      <!-- Hidden compatibility elements -->
+      <div class="hidden">
+        <select id="section-filter">
+          <option value="all">All Manual Sections</option>
+          <option value="10 - Engine">10 - Engine</option>
+          <option value="11 - Top & Front">11 - Top & Front of Engine</option>
+          <option value="12 - Fuel">12 - Fuel Injection</option>
+          <option value="19 - Cooling">19 - Cooling</option>
+          <option value="20 - Clutch">20 - Clutch</option>
+          <option value="21 - Manual Gearbox">21 - Manual Gearbox</option>
+          <option value="37 - Braking">37 - Braking</option>
+          <option value="80 - Electrical">80 - Electrical</option>
+        </select>
+        <div id="quick-topics-container"></div>
+        <span id="manual-size">32.5 MB</span>
+        <button id="sidebar-edit-vehicle-btn"></button>
+        <span id="sidebar-engine"></span>
+        <span id="sidebar-gearbox"></span>
+        <span id="sidebar-phase"></span>
+      </div>
     </aside>
 
-    <!-- Main Chat & Retrieval Area -->
-    <main class="flex-1 flex flex-col bg-dark-950/90 relative">
-      
-      <!-- Ingestion Progress Banner (hidden by default) -->
-      <div id="ingestion-banner" class="hidden bg-amber-950/40 border-b border-amber-500/30 px-6 py-3 text-xs flex items-center justify-between">
-        <div class="flex items-center gap-3 flex-1 mr-4">
-          <i data-lucide="loader" class="w-4 h-4 text-amber-400 animate-spin"></i>
-          <div class="flex-1">
-            <div class="flex justify-between mb-1">
-              <span id="ingestion-msg" class="text-amber-200 font-medium">Extracting and indexing workshop manual...</span>
-              <span id="ingestion-pct" class="text-amber-400 font-mono font-bold">0%</span>
-            </div>
-            <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-              <div id="ingestion-bar" class="bg-amber-500 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
-            </div>
+    <!-- Main Workstation Viewport -->
+    <main id="main-viewport" class="flex-1 bg-dark-950 overflow-hidden flex flex-col relative">
+
+      <!-- ================= VIEW 1: SPACIOUS AI DIAGNOSTIC CHAT (DEFAULT) ================= -->
+      <section id="view-chat" class="flex-1 flex flex-col h-full overflow-hidden w-full max-w-4xl mx-auto p-2 sm:p-4 transition-all">
+        <!-- Chat Header Bar -->
+        <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/80 shrink-0 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="font-bold text-slate-200">AI Diagnostic Assistant</span>
+            <span class="text-slate-600">|</span>
+            <span id="chat-active-engine" class="font-mono text-amber-400">1.6 16V K4M • JB3</span>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <button type="button" id="save-chat-btn" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-amber-300 transition" title="Save this chat session">
+              <i data-lucide="bookmark" class="w-4 h-4"></i>
+            </button>
+            <button type="button" id="export-chat-btn" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-amber-300 transition" title="Export conversation as Markdown (.md)">
+              <i data-lucide="download" class="w-4 h-4"></i>
+            </button>
+            <button type="button" id="quick-clear-btn" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-rose-400 transition" title="Clear current conversation">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
           </div>
         </div>
-      </div>
 
-      <!-- Messages Stream View -->
-      <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-        
-        <!-- Welcome Greeting -->
-        <div class="max-w-3xl mx-auto rounded-2xl bg-dark-900/80 border border-slate-800/80 p-6 shadow-xl space-y-4">
-          <div class="flex items-start gap-4">
-            <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
-              <i data-lucide="book-open-check" class="w-6 h-6"></i>
-            </div>
-            <div class="space-y-1">
-              <h2 class="text-lg font-bold text-white">Renault Mégane I Workshop RAG Assistant</h2>
-              <p class="text-xs text-slate-400 leading-relaxed">
-                Trained on the complete Renault Mégane I (1995–2002) OEM workshop service manual. Ask any mechanical, electrical, torque specification, or diagnostic question with verified page references.
-              </p>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
-            <div class="p-3 rounded-lg bg-dark-850 border border-slate-800 hover:border-slate-700 transition">
-              <div class="font-semibold text-amber-300 flex items-center gap-1.5 mb-1">
-                <i data-lucide="gauge" class="w-3.5 h-3.5"></i> Torque Specs & Tolerances
+        <!-- Messages Stream View (Spacious & Full Height) -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto pr-1 space-y-4 custom-scrollbar">
+          <!-- Welcome Greeting -->
+          <div class="rounded-2xl bg-[#101726] border border-slate-800/80 p-5 space-y-3 shadow-lg">
+            <div class="flex items-start gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 shadow-md">
+                <i data-lucide="book-open-check" class="w-5 h-5"></i>
               </div>
-              <p class="text-slate-400">Exact head bolt torque angles, bearing tolerances, and tightening sequences in daNm / Nm.</p>
-            </div>
-            <div class="p-3 rounded-lg bg-dark-850 border border-slate-800 hover:border-slate-700 transition">
-              <div class="font-semibold text-amber-300 flex items-center gap-1.5 mb-1">
-                <i data-lucide="git-commit" class="w-3.5 h-3.5"></i> Step-by-Step Procedures
+              <div class="space-y-1">
+                <h3 class="text-base font-bold text-white">Renault Mégane I Workshop AI Assistant</h3>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                  Ask any mechanical, electrical, or diagnostic question in Arabic or English. Grounded directly in the official 2,492-page factory service manual with interactive digital schematics and verified torque tolerances.
+                </p>
               </div>
-              <p class="text-slate-400">Timing belt locking pins (Mot. 1489), gearbox overhaul, bleeding ABS systems, clutch replacement.</p>
-            </div>
-            <div class="p-3 rounded-lg bg-dark-850 border border-slate-800 hover:border-slate-700 transition">
-              <div class="font-semibold text-amber-300 flex items-center gap-1.5 mb-1">
-                <i data-lucide="zap" class="w-3.5 h-3.5"></i> Electrical & Wiring
-              </div>
-              <p class="text-slate-400">Fuse box assignments, relay locations, immobiliser systems, sensor testing values.</p>
-            </div>
-            <div class="p-3 rounded-lg bg-dark-850 border border-slate-800 hover:border-slate-700 transition">
-              <div class="font-semibold text-amber-300 flex items-center gap-1.5 mb-1">
-                <i data-lucide="droplet" class="w-3.5 h-3.5"></i> Fluids & Capacities
-              </div>
-              <p class="text-slate-400">Gearbox oil viscosity (75W80 TRX), engine oil grades, coolant capacities, and intervals.</p>
             </div>
           </div>
         </div>
 
-      </div>
-
-      <!-- Input Bar Container -->
-      <div class="p-4 border-t border-slate-800/80 bg-dark-900/90 backdrop-blur-md">
-        <div class="max-w-4xl mx-auto space-y-2">
-          
-          <form id="chat-form" class="relative flex items-end gap-2 bg-dark-850 border border-slate-700/80 rounded-xl p-2 focus-within:border-amber-500/80 focus-within:ring-1 focus-within:ring-amber-500/40 transition">
+        <!-- Chat Input Container -->
+        <div class="pt-2 border-t border-slate-800/80 shrink-0">
+          <form id="chat-form" class="relative flex items-end gap-2 bg-[#101726] border border-slate-700/80 rounded-2xl p-2.5 focus-within:border-amber-500/80 focus-within:ring-1 focus-within:ring-amber-500/40 transition shadow-lg">
             <textarea
               id="user-input"
               rows="1"
-              placeholder="Ask about torque specs, timing belt, fuses, gearbox oil, wiring diagrams..."
-              class="w-full bg-transparent text-sm text-slate-100 placeholder-slate-500 focus:outline-none resize-none px-3 py-1.5 max-h-36 custom-scrollbar"
+              placeholder="Ask about torque specs, timing belt, fuses, wiring diagrams, starter circuit..."
+              class="w-full bg-transparent text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none resize-none px-2 py-1 max-h-36 custom-scrollbar"
             ></textarea>
 
-            <div class="flex items-center gap-1.5 shrink-0">
+            <div class="flex items-center gap-1 shrink-0">
               <button
                 type="button"
                 id="search-only-toggle"
-                class="px-2 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
+                class="px-2 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
                 title="Toggle Pure Search vs AI Generation"
               >
-                <span class="flex items-center gap-1">
-                  <i data-lucide="search" class="w-3.5 h-3.5"></i>
-                  <span class="hidden sm:inline">Search Chunks</span>
-                </span>
+                <i data-lucide="search" class="w-3.5 h-3.5"></i>
               </button>
 
               <button
                 type="submit"
                 id="send-btn"
-                class="w-9 h-9 rounded-lg bg-amber-500 hover:bg-amber-400 text-dark-950 font-bold flex items-center justify-center transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-amber-500/20"
+                class="w-8 h-8 rounded-lg bg-amber-500 hover:bg-amber-400 text-dark-950 font-bold flex items-center justify-center transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-amber-500/20"
               >
-                <i data-lucide="arrow-up" class="w-5 h-5"></i>
+                <i data-lucide="arrow-up" class="w-4 h-4"></i>
               </button>
             </div>
           </form>
 
-          <!-- Context Window & Meter Bar -->
-          <div class="flex flex-wrap items-center justify-between gap-3 text-xs pt-1 px-1 text-slate-400 border-t border-slate-800/60 mt-2">
-            <!-- Context Meter & Tokens -->
-            <div class="flex items-center gap-2.5">
-              <div class="flex items-center gap-1.5" title="Active conversation context & LLM memory budget">
-                <i data-lucide="cpu" class="w-3.5 h-3.5 text-amber-400"></i>
-                <span class="text-slate-400 font-medium text-[11px]">Context:</span>
+          <!-- Context Token Usage Meter -->
+          <div class="flex flex-wrap items-center justify-between gap-2 text-xs pt-2 px-1 text-slate-400">
+            <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1">
+                <i data-lucide="cpu" class="w-3 h-3 text-amber-400"></i>
+                <span class="text-slate-400 text-[11px]">Context:</span>
                 <span id="context-pct-label" class="font-bold font-mono text-emerald-400 text-xs">0%</span>
               </div>
-              
-              <!-- Mini Progress Bar -->
-              <div class="w-24 sm:w-36 bg-slate-800/90 rounded-full h-1.5 overflow-hidden border border-slate-700/50" title="Context memory usage indicator">
+              <div class="w-20 sm:w-28 bg-slate-800/90 rounded-full h-1.5 overflow-hidden border border-slate-700/50">
                 <div id="context-progress-bar" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
               </div>
-
-              <span id="context-tokens-badge" class="hidden sm:inline font-mono text-[10px] text-slate-500">0 / 8,192 tokens</span>
-              <span id="context-turns-badge" class="hidden md:inline px-1.5 py-0.5 rounded bg-slate-800/80 border border-slate-700/60 font-mono text-[10px] text-slate-400">0 turns</span>
+              <span id="context-tokens-badge" class="font-mono text-[10px] text-slate-500">0 / 1,000,000 tokens (1M)</span>
             </div>
+            <span id="context-turns-badge" class="px-1.5 py-0.2 rounded bg-slate-800 border border-slate-700 font-mono text-[10px] text-slate-400">0 turns</span>
+          </div>
+        </div>
+      </section>
 
-            <!-- Grounding & Quick Actions -->
-            <div class="flex items-center gap-2.5">
-              <span class="hidden lg:flex items-center gap-1 text-[11px] text-slate-500">
-                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
-                OEM Workshop Grounded
+      <!-- ================= VIEW 2: DIGITAL INTERACTIVE WIRING STUDIO ================= -->
+      <section id="view-wiring-studio" class="hidden flex-1 flex flex-col h-full overflow-y-auto custom-scrollbar p-3 sm:p-5 w-full max-w-6xl mx-auto space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="zap" class="w-5 h-5 text-amber-400"></i>
+              <span>Digital Interactive Wiring Studio</span>
+            </h2>
+            <p class="text-xs text-slate-400">Interactive Vector Schematics • Live Power Simulation • Component Pinout Inspector</p>
+          </div>
+
+          <!-- Circuit Selectors in Studio -->
+          <div class="flex flex-wrap items-center gap-1.5" id="studio-circuit-pills">
+            <button type="button" class="studio-pill active px-3 py-1.5 rounded-xl font-bold text-xs bg-amber-500 text-dark-950 shadow-md transition" data-circuit="starter_circuit">
+              🔑 Starter 163 & Ignition 104
+            </button>
+            <button type="button" class="studio-pill px-3 py-1.5 rounded-xl font-medium text-xs bg-[#141c2e] hover:bg-slate-800 text-slate-300 border border-slate-800 transition" data-circuit="sirius32_ecu">
+              ⚡ Sirius 32 ECU Injection
+            </button>
+            <button type="button" class="studio-pill px-3 py-1.5 rounded-xl font-medium text-xs bg-[#141c2e] hover:bg-slate-800 text-slate-300 border border-slate-800 transition" data-circuit="cooling_fan">
+              ❄️ Cooling Fan GMV 188
+            </button>
+            <button type="button" class="studio-pill px-3 py-1.5 rounded-xl font-medium text-xs bg-[#141c2e] hover:bg-slate-800 text-slate-300 border border-slate-800 transition" data-circuit="transmission_ad4_dp0">
+              🕹️ AD4 / DP0 Gearbox Lockout
+            </button>
+            <button type="button" class="studio-pill px-3 py-1.5 rounded-xl font-medium text-xs bg-[#141c2e] hover:bg-slate-800 text-slate-300 border border-slate-800 transition" data-circuit="alternator_charging">
+              🔋 Alternator 103 Charging
+            </button>
+          </div>
+        </div>
+
+        <!-- Studio Schematic Mount -->
+        <div id="studio-schematic-mount" class="w-full"></div>
+
+        <!-- Renault Wiring Standard Reference Table -->
+        <div class="rounded-2xl border border-slate-800 bg-[#0e1422] p-4 space-y-3">
+          <h3 class="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-2">
+            <i data-lucide="info" class="w-4 h-4 text-amber-400"></i> Renault Factory Wiring Color Standards (Couleurs des Fils)
+          </h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+            <div class="p-2.5 rounded-lg bg-[#141c2e] border border-slate-800 flex items-center gap-2">
+              <span class="w-3.5 h-3.5 rounded-full bg-red-500 shadow-sm"></span>
+              <div>
+                <span class="font-mono font-bold text-white">RG (Rouge)</span>
+                <p class="text-[10px] text-slate-400">+12V Direct Battery (+BAT)</p>
+              </div>
+            </div>
+            <div class="p-2.5 rounded-lg bg-[#141c2e] border border-slate-800 flex items-center gap-2">
+              <span class="w-3.5 h-3.5 rounded-full bg-yellow-400 shadow-sm"></span>
+              <div>
+                <span class="font-mono font-bold text-white">JA (Jaune)</span>
+                <p class="text-[10px] text-slate-400">+12V After Ignition (+APC)</p>
+              </div>
+            </div>
+            <div class="p-2.5 rounded-lg bg-[#141c2e] border border-slate-800 flex items-center gap-2">
+              <span class="w-3.5 h-3.5 rounded-full bg-slate-900 border border-slate-600 shadow-sm"></span>
+              <div>
+                <span class="font-mono font-bold text-white">NO (Noir)</span>
+                <p class="text-[10px] text-slate-400">Ground / Earth (Masse)</p>
+              </div>
+            </div>
+            <div class="p-2.5 rounded-lg bg-[#141c2e] border border-slate-800 flex items-center gap-2">
+              <span class="w-3.5 h-3.5 rounded-full bg-blue-400 shadow-sm"></span>
+              <div>
+                <span class="font-mono font-bold text-white">BL / VE / SA</span>
+                <p class="text-[10px] text-slate-400">Sensor & Control Signals</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 3: DEDICATED OEM MANUAL VIEWER ================= -->
+      <section id="view-manual-reader" class="hidden flex-1 flex flex-col h-full overflow-hidden p-3 sm:p-4 w-full max-w-6xl mx-auto space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <h2 class="font-bold text-sm text-white uppercase tracking-wider">Official Renault Factory Workshop Manual</h2>
+            <span class="text-xs text-slate-400">| 2,492 Pages Indexed (150 DPI)</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="openPageViewer(miniCurrentPage || 84)" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-dark-950 font-bold text-xs flex items-center gap-1.5 transition shadow-sm">
+              <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Open Full High-Res Viewer ↗
+            </button>
+          </div>
+        </div>
+
+        <div class="flex-1 bg-slate-950 rounded-2xl border border-slate-800 p-4 flex flex-col items-center justify-center relative overflow-hidden">
+          <img id="manual-reader-img" src="/api/pdf/render/84" alt="Manual Page" class="max-h-full object-contain rounded-lg shadow-2xl cursor-pointer" onclick="openPageViewer(miniCurrentPage || 84)">
+        </div>
+      </section>
+
+      <!-- ================= VIEW 4: TORQUE & SPECIFICATIONS ================= -->
+      <section id="view-torque-specs" class="hidden flex-1 flex flex-col h-full overflow-y-auto custom-scrollbar p-3 sm:p-5 w-full max-w-5xl mx-auto space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="gauge" class="w-5 h-5 text-amber-400"></i>
+              <span>Factory Tightening Torque Specifications</span>
+            </h2>
+            <p id="torque-engine-label-dedicated" class="text-xs text-slate-400">Critical tolerances for active engine profile</p>
+          </div>
+          <button type="button" onclick="document.getElementById('vehicle-modal').classList.remove('hidden')" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-dark-950 font-bold text-xs transition">
+            Change Engine Profile
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Torque specs list -->
+          <div class="space-y-2.5">
+            <div class="p-3 rounded-xl bg-[#101726] border border-slate-800 flex items-center justify-between text-xs">
+              <span class="text-slate-300 font-semibold flex items-center gap-2">
+                <i data-lucide="crosshair" class="w-4 h-4 text-amber-400"></i> Cylinder Head Bolts:
               </span>
-              <button type="button" id="export-chat-btn" class="flex items-center gap-1 px-2.5 py-1 rounded-md bg-dark-850 hover:bg-slate-800 border border-slate-700/60 text-slate-300 hover:text-amber-300 text-[11px] font-medium transition" title="Export conversation as Markdown (.md)">
-                <i data-lucide="download" class="w-3 h-3 text-amber-400"></i>
-                <span>Export MD</span>
-              </button>
-              <button type="button" id="quick-clear-btn" class="flex items-center gap-1 px-2 py-1 rounded-md bg-dark-850 hover:bg-slate-800 border border-slate-700/60 text-slate-400 hover:text-rose-400 text-[11px] font-medium transition" title="Clear current conversation">
-                <i data-lucide="trash-2" class="w-3 h-3 text-rose-400"></i>
-                <span>Clear</span>
-              </button>
+              <span id="torque-head-bolts" class="font-mono font-bold text-amber-300">20 Nm + 240° ± 6°</span>
+            </div>
+            <div class="p-3 rounded-xl bg-[#101726] border border-slate-800 flex items-center justify-between text-xs">
+              <span class="text-slate-300 font-semibold flex items-center gap-2">
+                <i data-lucide="disc" class="w-4 h-4 text-amber-400"></i> Wheel Bolts:
+              </span>
+              <span id="torque-wheel-bolts" class="font-mono font-bold text-slate-200">100 – 110 Nm</span>
+            </div>
+            <div class="p-3 rounded-xl bg-[#101726] border border-slate-800 flex items-center justify-between text-xs">
+              <span class="text-slate-300 font-semibold flex items-center gap-2">
+                <i data-lucide="shield" class="w-4 h-4 text-amber-400"></i> Brake Calipers:
+              </span>
+              <span id="torque-brake-calipers" class="font-mono font-bold text-slate-200">35 – 40 Nm</span>
+            </div>
+            <div class="p-3 rounded-xl bg-[#101726] border border-slate-800 flex items-center justify-between text-xs">
+              <span class="text-slate-300 font-semibold flex items-center gap-2">
+                <i data-lucide="zap" class="w-4 h-4 text-amber-400"></i> Spark Plugs:
+              </span>
+              <span id="torque-spark-plugs" class="font-mono font-bold text-slate-200">25 – 30 Nm</span>
+            </div>
+            <div class="p-3 rounded-xl bg-[#101726] border border-slate-800 flex items-center justify-between text-xs">
+              <span class="text-slate-300 font-semibold flex items-center gap-2">
+                <i data-lucide="droplet" class="w-4 h-4 text-amber-400"></i> Sump Drain Plug:
+              </span>
+              <span id="torque-sump-plug" class="font-mono font-bold text-slate-200">20 Nm</span>
             </div>
           </div>
 
+          <!-- Blueprint -->
+          <div class="bg-slate-950 rounded-2xl border border-slate-800/80 p-4 flex flex-col items-center justify-center relative overflow-hidden min-h-[220px]">
+            <div class="text-[9px] font-mono uppercase tracking-widest text-slate-600 mb-1">CHASSIS BLUEPRINT // MÉGANE I</div>
+            <svg class="w-full max-w-[240px] text-amber-400/85 stroke-current fill-none py-2" viewBox="0 0 300 120" stroke-width="1.8">
+              <line x1="0" y1="95" x2="300" y2="95" stroke="#334155" stroke-dasharray="3 3" stroke-width="1"/>
+              <line x1="60" y1="0" x2="60" y2="120" stroke="#1e293b" stroke-dasharray="2 2" stroke-width="0.8"/>
+              <line x1="230" y1="0" x2="230" y2="120" stroke="#1e293b" stroke-dasharray="2 2" stroke-width="0.8"/>
+              <path d="M 25 95 L 45 95 Q 60 70 80 95 L 210 95 Q 225 70 245 95 L 285 95 Q 295 90 292 78 L 270 65 L 235 60 L 195 35 L 105 35 L 55 60 L 25 65 Q 15 75 25 95 Z" stroke-linejoin="round"/>
+              <circle cx="62" cy="95" r="17" stroke="#fbbf24" stroke-width="2"/>
+              <circle cx="62" cy="95" r="7" stroke="#fbbf24" stroke-width="1.5"/>
+              <circle cx="228" cy="95" r="17" stroke="#fbbf24" stroke-width="2"/>
+              <circle cx="228" cy="95" r="7" stroke="#fbbf24" stroke-width="1.5"/>
+              <path d="M 110 40 L 188 40 L 225 60 L 110 60 Z" stroke="#38bdf8" stroke-width="1.2"/>
+              <path d="M 65 60 L 102 42 L 102 60 Z" stroke="#38bdf8" stroke-width="1.2"/>
+              <line x1="145" y1="40" x2="145" y2="60" stroke="#475569" stroke-width="1.2"/>
+              <path d="M 22 70 L 35 73" stroke="#fef08a" stroke-width="2.5"/>
+              <path d="M 288 72 L 278 74" stroke="#f43f5e" stroke-width="2.5"/>
+            </svg>
+            <div class="text-[10px] text-slate-500 font-mono mt-1">Wheelbase: 2,580 mm • Kerb Weight: 1,025 kg</div>
+          </div>
         </div>
-      </div>
+      </section>
+
+      <!-- ================= VIEW 5: WORKSTATION DASHBOARD 4-CARD OVERVIEW ================= -->
+      <section id="view-dashboard" class="hidden flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4">
+        <div id="workstation-grid" class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <!-- CARD 1: WIRING -->
+          <div id="panel-wiring" class="dashboard-card bg-[#0e1422] border border-slate-800/90 rounded-2xl p-4 flex flex-col shadow-xl space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                  <h2 class="font-bold text-xs sm:text-sm text-amber-300 uppercase tracking-wider">TECHNICAL WIRING DIAGRAMS</h2>
+                </div>
+                <p id="wiring-circuit-label" class="text-xs text-slate-300 font-medium mt-0.5">Starter Motor 163 & Ignition Circuit</p>
+              </div>
+              <button type="button" onclick="document.getElementById('tab-wiring').click()" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-amber-300 transition" title="Open Full Studio">
+                <i data-lucide="maximize-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <div class="relative flex-1 min-h-[220px] bg-slate-950 rounded-xl border border-slate-800/80 overflow-hidden flex items-center justify-center cursor-pointer" onclick="document.getElementById('tab-wiring').click()">
+              <img id="schematic-img" src="/api/pdf/render/92" alt="Wiring Schematic" class="w-full h-full object-contain p-2 max-h-[260px]">
+            </div>
+          </div>
+
+          <!-- CARD 2: MANUAL -->
+          <div id="panel-manual" class="dashboard-card bg-[#0e1422] border border-slate-800/90 rounded-2xl p-4 flex flex-col shadow-xl space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <h2 class="font-bold text-xs sm:text-sm text-white uppercase tracking-wider">PDF MANUAL VIEWER</h2>
+              </div>
+              <button type="button" onclick="openPageViewer(84)" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition">
+                <i data-lucide="maximize-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <div class="relative flex-1 min-h-[220px] bg-slate-950 rounded-xl border border-slate-800/80 overflow-hidden flex items-center justify-center cursor-pointer" onclick="openPageViewer(84)">
+              <img id="mini-page-img" src="/api/pdf/render/84" alt="Manual Page" class="w-full h-full object-contain p-2 max-h-[260px]">
+            </div>
+          </div>
+
+          <!-- CARD 3: TORQUE -->
+          <div id="panel-torque" class="dashboard-card bg-[#0e1422] border border-slate-800/90 rounded-2xl p-4 flex flex-col shadow-xl space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                <h2 class="font-bold text-xs sm:text-sm text-amber-300 uppercase tracking-wider">TORQUE SPECIFICATIONS</h2>
+              </div>
+              <button type="button" onclick="document.getElementById('tab-torque').click()" class="text-xs text-amber-400 hover:text-amber-300 font-semibold underline">
+                View Full
+              </button>
+            </div>
+            <div class="p-3 bg-[#141c2e] rounded-xl text-xs space-y-2">
+              <div class="flex justify-between"><span>Head Bolts:</span><strong class="text-amber-300 font-mono">20 Nm + 240°</strong></div>
+              <div class="flex justify-between"><span>Wheel Bolts:</span><strong class="text-slate-200 font-mono">100 – 110 Nm</strong></div>
+              <div class="flex justify-between"><span>Spark Plugs:</span><strong class="text-slate-200 font-mono">25 – 30 Nm</strong></div>
+            </div>
+          </div>
+
+          <!-- CARD 4: CHAT SHORTCUT -->
+          <div class="dashboard-card bg-[#0e1422] border border-slate-800/90 rounded-2xl p-4 flex flex-col justify-between shadow-xl">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              <h2 class="font-bold text-xs sm:text-sm text-white uppercase tracking-wider">AI DIAGNOSTICS CHAT</h2>
+            </div>
+            <p class="text-xs text-slate-400">Return to the full-size chat interface to continue your diagnostic discussion.</p>
+            <button type="button" onclick="document.getElementById('tab-diag').click()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-dark-950 font-bold text-xs transition">
+              Open Full Chat Screen 💬
+            </button>
+          </div>
+        </div>
+      </section>
 
     </main>
 
@@ -654,6 +866,60 @@
         </button>
         <button type="button" id="dialog-confirm-btn" class="px-5 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-dark-950 text-xs font-bold transition shadow-md shadow-amber-500/20">
           Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pin Inspector Modal -->
+  <div id="pin-inspector-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[90] flex items-center justify-center p-4 hidden">
+    <div class="bg-dark-900 border border-slate-700/80 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <i data-lucide="zap" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 id="pin-modal-title" class="font-bold text-white text-sm sm:text-base">Pin & Terminal Inspector</h3>
+            <p id="pin-modal-subtitle" class="text-[11px] text-slate-400 font-mono">Renault Mégane I Electrical Standard</p>
+          </div>
+        </div>
+        <button id="close-pin-modal-btn" class="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="grid grid-cols-2 gap-2.5">
+          <div class="p-3 rounded-xl bg-[#141c2e] border border-slate-800 space-y-1">
+            <span class="text-[10px] text-slate-500 uppercase font-semibold">Terminal / Pin</span>
+            <p id="pin-modal-pin" class="text-sm font-bold text-amber-300 font-mono">-</p>
+          </div>
+          <div class="p-3 rounded-xl bg-[#141c2e] border border-slate-800 space-y-1">
+            <span class="text-[10px] text-slate-500 uppercase font-semibold">Expected Voltage</span>
+            <p id="pin-modal-voltage" class="text-sm font-bold text-emerald-400 font-mono">-</p>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#141c2e] border border-slate-800 space-y-1">
+          <span class="text-[10px] text-slate-500 uppercase font-semibold">Wire Gauge & Renault Color Code</span>
+          <p id="pin-modal-wire" class="text-xs font-semibold text-slate-200 font-mono">-</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-[#101726] border border-slate-800 space-y-1.5">
+          <span class="text-[10px] text-slate-500 uppercase font-semibold flex items-center gap-1.5">
+            <i data-lucide="wrench" class="w-3.5 h-3.5 text-amber-400"></i> Workshop Diagnostic & Testing Guide
+          </span>
+          <p id="pin-modal-note" class="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap"></p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-3 border-t border-slate-800 text-xs">
+        <button type="button" id="pin-ask-ai-btn" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-dark-950 font-bold transition flex items-center gap-1.5 shadow-md shadow-amber-500/20">
+          <i data-lucide="message-square-code" class="w-4 h-4"></i> Ask AI to Diagnose This Pin
+        </button>
+        <button type="button" onclick="document.getElementById('pin-inspector-modal').classList.add('hidden')" class="px-3.5 py-2 rounded-xl bg-dark-850 hover:bg-slate-800 text-slate-300 transition">
+          Close
         </button>
       </div>
     </div>
