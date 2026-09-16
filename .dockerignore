@@ -8,3 +8,6 @@ venv
 .venv
 tests/
 test_*.py
+data/page_cache/*
+!data/page_cache/.gitkeep
+*.log

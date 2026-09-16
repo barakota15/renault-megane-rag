@@ -175,6 +175,45 @@ def test_multi_turn_history_in_search():
     print("[TEST PASSED] Multi-turn context in search verified successfully.")
 
 
+def test_multiview_html_structure():
+    with open("templates/index.html", "r", encoding="utf-8") as f:
+        html = f.read()
+
+    # Views
+    for view_id in ["view-chat", "view-wiring-studio", "view-manual-reader", "view-torque-specs", "view-dashboard"]:
+        assert f'id="{view_id}"' in html, f"Missing #{view_id}"
+
+    # Navigation tabs & rail
+    for nav_id in ["tab-diag", "tab-wiring", "tab-manuals", "tab-torque", "tab-dashboard", "rail-dashboard", "rail-electrical", "rail-engine", "rail-gearbox", "rail-body"]:
+        assert f'id="{nav_id}"' in html, f"Missing #{nav_id}"
+
+    # Studio & Pin Inspector
+    assert 'id="studio-schematic-mount"' in html, "Missing #studio-schematic-mount"
+    assert 'id="pin-inspector-modal"' in html, "Missing #pin-inspector-modal"
+    assert '<script src="/static/schematics.js"></script>' in html, "Missing schematics.js"
+    print("[TEST PASSED] Multi-view workstation HTML structure verified.")
+
+
+def test_digital_schematics_engine():
+    with open("static/schematics.js", "r", encoding="utf-8") as f:
+        js = f.read()
+
+    # Verify all 5 circuits modeled
+    circuits = ["starter_circuit", "sirius32_ecu", "cooling_fan", "transmission_ad4_dp0", "alternator_charging"]
+    for c in circuits:
+        assert c in js, f"Missing circuit: {c}"
+
+    # Key functions & state
+    assert "generateStarterCircuitSVG" in js
+    assert "generateSirius32SVG" in js
+    assert "generateCoolingFanSVG" in js
+    assert "generateTransmissionSVG" in js
+    assert "generateAlternatorSVG" in js
+    assert "bypassConnected" in js
+    assert "bypassPressed" in js
+    print("[TEST PASSED] Antigravity digital schematics engine (5 circuits & simulations) verified.")
+
+
 if __name__ == "__main__":
     test_status_endpoint()
     test_quick_topics_endpoint()
@@ -188,4 +227,8 @@ if __name__ == "__main__":
     test_saved_chats_endpoints()
     test_multi_turn_history_in_search()
     test_index_html_endpoint()
-    print("\nALL AUTOMATED TESTS (INCLUDING MULTI-TURN CONTEXT & SAVED CHATS) PASSED! 🚀")
+    test_multiview_html_structure()
+    test_digital_schematics_engine()
+    print("\n==================================================")
+    print("ALL AUTOMATED TESTS PASSED! 🚀")
+    print("==================================================")

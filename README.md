@@ -167,16 +167,12 @@ To run the complete automated test suite:
 ```bash
 # 1. Test backend RAG retrieval, PDF rendering, and chat endpoints
 python3 test_app.py
-
-# 2. Test digital vector schematics engine and layout views
-python3 test_schematics_and_views.py
 ```
 
 Expected output:
 ```
 ==================================================
 ALL AUTOMATED TESTS (INCLUDING MULTI-TURN CONTEXT & SAVED CHATS) PASSED! 🚀
-ALL DIGITAL SCHEMATICS AND MULTI-VIEW TESTS PASSED! 🚀
 ==================================================
 ```
 
