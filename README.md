@@ -72,7 +72,7 @@ Rather than relying on blurry black & white scanned manual drawings, the applica
 ### 2. Clone and Install Dependencies
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/renault-megane-rag.git
+git clone https://github.com/barakota15/renault-megane-rag.git
 cd renault-megane-rag
 
 # (Optional) Create a virtual environment
