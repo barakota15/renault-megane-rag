@@ -198,8 +198,8 @@ def test_digital_schematics_engine():
     with open("static/schematics.js", "r", encoding="utf-8") as f:
         js = f.read()
 
-    # Verify all 5 circuits modeled
-    circuits = ["starter_circuit", "sirius32_ecu", "cooling_fan", "transmission_ad4_dp0", "alternator_charging"]
+    # Verify all 6 circuits modeled including OBD-II 16-pin socket
+    circuits = ["starter_circuit", "sirius32_ecu", "cooling_fan", "transmission_ad4_dp0", "alternator_charging", "obd2_diagnostic_socket"]
     for c in circuits:
         assert c in js, f"Missing circuit: {c}"
 
@@ -209,9 +209,15 @@ def test_digital_schematics_engine():
     assert "generateCoolingFanSVG" in js
     assert "generateTransmissionSVG" in js
     assert "generateAlternatorSVG" in js
+    assert "generateObd2DiagnosticSVG" in js
     assert "bypassConnected" in js
     assert "bypassPressed" in js
-    print("[TEST PASSED] Antigravity digital schematics engine (5 circuits & simulations) verified.")
+    # Verify subsystem filtering and CAD pan-zoom engine
+    assert "applySubsystemFilter" in js, "Missing applySubsystemFilter"
+    assert "applyTransform" in js, "Missing applyTransform"
+    assert "subsystems" in js, "Missing subsystems metadata"
+    print("[TEST PASSED] Antigravity digital schematics engine (6 circuits & simulations including OBD-II & Pan-Zoom & Subsystem Filtering) verified.")
+
 
 
 if __name__ == "__main__":

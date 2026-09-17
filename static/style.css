@@ -281,3 +281,20 @@
   backdrop-filter: blur(8px);
 }
 
+.cad-badge {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.schematic-svg-mount {
+  overflow: hidden;
+  cursor: default;
+}
+
+.schematic-svg-mount svg text {
+  letter-spacing: 0.02em;
+}
+
+.schematic-svg-mount svg g.cursor-pointer:hover circle {
+  filter: brightness(1.2);
+}
+

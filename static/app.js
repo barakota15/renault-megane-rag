@@ -987,10 +987,20 @@ document.addEventListener('DOMContentLoaded', () => {
       const studioMount = document.getElementById('studio-schematic-mount');
       if (studioMount && (!studioMount.dataset.renderedCircuit || studioMount.children.length === 0)) {
         const activePill = document.querySelector('#studio-circuit-pills .studio-pill.active');
-        const cId = activePill ? activePill.dataset.circuit : 'starter_circuit';
+        const cId = activePill ? activePill.dataset.circuit : 'sirius32_ecu';
         if (window.SchematicsEngine) {
           window.SchematicsEngine.renderWidget(cId, studioMount);
           studioMount.dataset.renderedCircuit = cId;
+        }
+      }
+    } else if (viewName === 'dashboard') {
+      const dashMount = document.getElementById('dashboard-schematic-mount');
+      if (dashMount && (!dashMount.dataset.renderedCircuit || dashMount.children.length === 0)) {
+        const activePill = document.querySelector('#dash-circuit-pills .dash-pill.active');
+        const cId = activePill ? activePill.dataset.circuit : 'sirius32_ecu';
+        if (window.SchematicsEngine) {
+          window.SchematicsEngine.renderWidget(cId, dashMount, { showTitle: false, showPins: false, showControls: true });
+          dashMount.dataset.renderedCircuit = cId;
         }
       }
     } else if (viewName === 'chat') {
@@ -1062,6 +1072,34 @@ document.addEventListener('DOMContentLoaded', () => {
           if (studioMount && window.SchematicsEngine) {
             window.SchematicsEngine.renderWidget(circuitId, studioMount);
             studioMount.dataset.renderedCircuit = circuitId;
+          }
+        });
+      });
+    }
+
+    // 1b. Dashboard Card 1 Circuit Pills
+    const dashPills = document.querySelectorAll('#dash-circuit-pills .dash-pill');
+    if (dashPills && dashPills.length > 0) {
+      dashPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          dashPills.forEach(p => {
+            p.classList.remove('active', 'bg-amber-500', 'text-dark-950', 'font-bold');
+            p.classList.add('bg-[#141c2e]', 'text-slate-300', 'border-slate-800', 'font-medium');
+          });
+          pill.classList.remove('bg-[#141c2e]', 'text-slate-300', 'border-slate-800', 'font-medium');
+          pill.classList.add('active', 'bg-amber-500', 'text-dark-950', 'font-bold');
+
+          const circuitId = pill.dataset.circuit;
+          const labelEl = document.getElementById('wiring-circuit-label');
+          const circObj = window.SchematicsEngine ? window.SchematicsEngine.getCircuit(circuitId) : null;
+          if (labelEl && circObj) {
+            labelEl.textContent = `${circObj.title} (Page ${circObj.manualPage})`;
+          }
+
+          const dashMount = document.getElementById('dashboard-schematic-mount');
+          if (dashMount && window.SchematicsEngine) {
+            window.SchematicsEngine.renderWidget(circuitId, dashMount, { showTitle: false, showPins: false, showControls: true });
+            dashMount.dataset.renderedCircuit = circuitId;
           }
         });
       });
@@ -1372,17 +1410,27 @@ document.addEventListener('DOMContentLoaded', () => {
   function detectCircuitForPageOrText(pId, text) {
     const combined = `${pId || ''} ${text || ''}`.toLowerCase();
 
-    // 1. Starter motor 163 & Neiman 104 & starter bypass switch
-    if (['92', '93', '94', '95', '330', '331', '332'].includes(String(pId)) ||
-        combined.includes('starter') || combined.includes('163') || combined.includes('neiman') ||
-        combined.includes('مارش') || combined.includes('سويتش') || combined.includes('كونتاك') ||
-        combined.includes('solenoid') || combined.includes('بادئ') || combined.includes('توصيلة مارش') ||
-        combined.includes('زر تشغيل')) {
-      return 'starter_circuit';
+    // 1. Automatic Transmission AD4 / DP0 (Check first for TCU, solenoids, gearbox terms)
+    if (['378', '379', '380', '410'].includes(String(pId)) ||
+        combined.includes('ad4') || combined.includes('dp0') || combined.includes('فتيس') ||
+        combined.includes('ناقل حركة') || combined.includes('automatic transmission') || combined.includes('multifunction') ||
+        combined.includes('tcu') || combined.includes('tcm') || combined.includes('779') || combined.includes('754') ||
+        combined.includes('بلوف') || combined.includes('evm') || combined.includes('shift valve')) {
+      return 'transmission_ad4_dp0';
     }
 
-    // 2. Sirius 32 / Injection ECU 120
-    if (['550', '551', '552', '553', '554', '555', '370', '371'].includes(String(pId)) ||
+    // 2. OBD-II 16-Pin Diagnostic Socket 225 & Bus Networks
+    if (['225', '231'].includes(String(pId)) ||
+        combined.includes('obd') || combined.includes('obd2') || combined.includes('obd-ii') ||
+        combined.includes('225') || combined.includes('diagnostic socket') || combined.includes('prise diagnostic') ||
+        combined.includes('فيشة') || combined.includes('دياجنوستيك') || combined.includes('اعطال') ||
+        combined.includes('أعطال') || combined.includes('16 pin') || combined.includes('16-pin') ||
+        combined.includes('k-line') || combined.includes('l-line')) {
+      return 'obd2_diagnostic_socket';
+    }
+
+    // 3. Sirius 32 / Injection ECU 120
+    if (['550', '551', '552', '553', '554', '555', '370', '371', '263', '264', '265', '266', '267', '268', '269', '270', '271', '272', '273', '274'].includes(String(pId)) ||
         combined.includes('sirius') || combined.includes('fenix') || combined.includes('120') ||
         combined.includes('كنترول') || combined.includes('ecu') || combined.includes('بخاخات') ||
         combined.includes('رشاشات') || combined.includes('pmh') || combined.includes('حساس كرنك') ||
@@ -1390,7 +1438,16 @@ document.addEventListener('DOMContentLoaded', () => {
       return 'sirius32_ecu';
     }
 
-    // 3. GMV Cooling fan 188
+    // 4. Starter motor 163 & Neiman 104 & starter bypass switch
+    if (['92', '93', '94', '95', '330', '331', '332'].includes(String(pId)) ||
+        combined.includes('starter') || combined.includes('163') || combined.includes('neiman') ||
+        combined.includes('مارش') || combined.includes('سويتش') || combined.includes('كونتاك') ||
+        combined.includes('starter solenoid') || combined.includes('بادئ') || combined.includes('توصيلة مارش') ||
+        combined.includes('زر تشغيل')) {
+      return 'starter_circuit';
+    }
+
+    // 5. GMV Cooling fan 188
     if (['244', '245', '246', '247', '248'].includes(String(pId)) ||
         combined.includes('cooling fan') || combined.includes('gmv') || combined.includes('188') ||
         combined.includes('مروحة') || combined.includes('تبريد') || combined.includes('relay 234') ||
@@ -1398,14 +1455,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return 'cooling_fan';
     }
 
-    // 4. Automatic Transmission AD4 / DP0
-    if (['378', '379', '380', '410'].includes(String(pId)) ||
-        combined.includes('ad4') || combined.includes('dp0') || combined.includes('فتيس') ||
-        combined.includes('ناقل حركة') || combined.includes('automatic transmission') || combined.includes('multifunction')) {
-      return 'transmission_ad4_dp0';
-    }
-
-    // 5. Alternator 103 Charging
+    // 6. Alternator 103 Charging
     if (['90', '91', '103', '104'].includes(String(pId)) ||
         combined.includes('alternator') || combined.includes('103') || combined.includes('دينامو') ||
         combined.includes('شحن') || combined.includes('charging system')) {
@@ -1426,19 +1476,21 @@ document.addEventListener('DOMContentLoaded', () => {
       const uid = `chat-circuit-${schematicCardCounter}-${Date.now()}`;
       const defaultPages = {
         starter_circuit: 92,
-        sirius32_ecu: 550,
+        sirius32_ecu: 268,
         cooling_fan: 245,
         transmission_ad4_dp0: 378,
-        alternator_charging: 90
+        alternator_charging: 90,
+        obd2_diagnostic_socket: 231
       };
       const displayPage = (pId && pId !== 'circuit') ? pId : (defaultPages[circuitId] || 92);
 
       const circuitNames = {
-        starter_circuit: "⚡ Starter Motor 163 & Ignition 104 (Interactive Circuit & External Bypass Mod)",
-        sirius32_ecu: "⚙️ Sirius 32 Engine ECU 120 & Sequential Injection",
-        cooling_fan: "❄️ GMV Cooling Fan 188 (2-Speed Dual Relay System)",
-        transmission_ad4_dp0: "🕹️ AD4 / DP0 Automatic Gearbox & Starter Interlock",
-        alternator_charging: "🔋 Alternator 103 & 12V Battery Charging Circuit"
+        starter_circuit: "⚡ Starter Motor 163 & Ignition 104 (Interactive CAD & External Bypass Mod)",
+        sirius32_ecu: "⚙️ Engine Management ECU 120 (Multipoint Injection & Pin Allocation Matrix)",
+        cooling_fan: "❄️ GMV Cooling Fan 188 (Dual-Speed Relay System & Resistor 700)",
+        transmission_ad4_dp0: "🕹️ AD4 / DP0 Automatic Gearbox (TCU 119, CMF 779 & Solenoids 754)",
+        alternator_charging: "🔋 Alternator 103 & 12V Battery Charging Circuit",
+        obd2_diagnostic_socket: "🔌 OBD-II 16-Pin Diagnostic Socket 225 & Multi-ECU K-Line Bus"
       };
       const title = circuitNames[circuitId] || "Renault Interactive Vector Schematic";
 
