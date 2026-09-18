@@ -1471,7 +1471,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const safeCaption = (caption || `Renault Manual Diagram - Page ${pId}`).trim();
     const circuitId = detectCircuitForPageOrText(pId, caption);
 
-    if (circuitId && window.SchematicsEngine) {
+    // Only render interactive vector CAD widget if explicitly requested as circuit or interactive
+    const isExplicitCircuit = (pId === 'circuit') || 
+                              (caption && (caption.toLowerCase().includes('interactive') || 
+                                           caption.includes('تفاعلي') || 
+                                           caption.toLowerCase().includes('cad schematic')));
+
+    if (isExplicitCircuit && circuitId && window.SchematicsEngine) {
       schematicCardCounter++;
       const uid = `chat-circuit-${schematicCardCounter}-${Date.now()}`;
       const defaultPages = {
@@ -1485,12 +1491,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const displayPage = (pId && pId !== 'circuit') ? pId : (defaultPages[circuitId] || 92);
 
       const circuitNames = {
-        starter_circuit: "⚡ Starter Motor 163 & Ignition 104 (Interactive CAD & External Bypass Mod)",
-        sirius32_ecu: "⚙️ Engine Management ECU 120 (Multipoint Injection & Pin Allocation Matrix)",
-        cooling_fan: "❄️ GMV Cooling Fan 188 (Dual-Speed Relay System & Resistor 700)",
-        transmission_ad4_dp0: "🕹️ AD4 / DP0 Automatic Gearbox (TCU 119, CMF 779 & Solenoids 754)",
+        starter_circuit: "⚡ Starter Motor 163 & Ignition 104 (Interactive CAD)",
+        sirius32_ecu: "⚙️ Engine Management ECU 120 (Interactive CAD)",
+        cooling_fan: "❄️ GMV Cooling Fan 188 (Interactive CAD)",
+        transmission_ad4_dp0: "🕹️ AD4 / DP0 Automatic Gearbox (Interactive CAD)",
         alternator_charging: "🔋 Alternator 103 & 12V Battery Charging Circuit",
-        obd2_diagnostic_socket: "🔌 OBD-II 16-Pin Diagnostic Socket 225 & Multi-ECU K-Line Bus"
+        obd2_diagnostic_socket: "🔌 OBD-II 16-Pin Diagnostic Socket 225"
       };
       const title = circuitNames[circuitId] || "Renault Interactive Vector Schematic";
 
@@ -1505,8 +1511,8 @@ document.addEventListener('DOMContentLoaded', () => {
               </span>
             </div>
             <div class="flex items-center gap-1.5">
-              <button type="button" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-medium transition cursor-pointer toggle-scan-btn" data-target="scan-${uid}">
-                <i data-lucide="file-text" class="w-3 h-3 text-slate-400"></i> Compare OEM Scan (p.${displayPage})
+              <button type="button" onclick="openPageViewer('${displayPage}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-medium transition cursor-pointer">
+                <i data-lucide="book-open" class="w-3 h-3 text-slate-400"></i> View Book Page ${displayPage} ↗
               </button>
               <button type="button" onclick="openStudioWithCircuit('${circuitId}')" class="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-[11px] font-bold flex items-center gap-1 transition cursor-pointer">
                 <i data-lucide="maximize-2" class="w-3 h-3"></i> Open Studio ↗
@@ -1516,30 +1522,31 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="chat-schematic-mount p-2 sm:p-4 bg-slate-950" id="${uid}" data-circuit-id="${circuitId}">
             <!-- SchematicsEngine mounts here -->
           </div>
-          <div id="scan-${uid}" class="hidden p-3 bg-[#0b0f19] border-t border-slate-800 text-center">
-            <div class="text-[11px] text-slate-400 mb-2 font-mono flex items-center justify-center gap-2">
-              <span>Original Factory Workshop Manual Scan (Page ${displayPage})</span>
-              <button type="button" onclick="openPageViewer('${displayPage}')" class="text-amber-400 hover:underline text-[10px]">Open in Full Reader ↗</button>
-            </div>
-            <img src="/api/pdf/render/${displayPage}" alt="${escapeHtml(safeCaption)}" class="max-h-80 mx-auto rounded-lg object-contain cursor-pointer transition hover:scale-[1.01]" onclick="openPageViewer('${displayPage}')" loading="lazy">
-          </div>
         </div>
       `;
     }
 
+    // Default & Primary: High-Resolution Workshop Manual Book Page (صفحة كتاب الصيانة الرسمية)
     return `
       <div class="my-4 rounded-xl border border-amber-500/40 bg-dark-900/90 overflow-hidden shadow-xl group">
         <div class="px-3.5 py-2.5 bg-dark-850 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
-          <span class="font-semibold text-amber-300 flex items-center gap-1.5 truncate max-w-sm">
-            <i data-lucide="image" class="w-3.5 h-3.5 text-amber-400 shrink-0"></i>
+          <span class="font-semibold text-amber-300 flex items-center gap-1.5 truncate max-w-md">
+            <i data-lucide="book-open" class="w-3.5 h-3.5 text-amber-400 shrink-0"></i>
             <span>${escapeHtml(safeCaption)}</span>
           </span>
-          <button type="button" onclick="openPageViewer('${pId}')" class="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-[11px] font-bold flex items-center gap-1 transition cursor-pointer">
-            <i data-lucide="maximize-2" class="w-3 h-3"></i> Full Page ${pId} ↗
-          </button>
+          <div class="flex items-center gap-1.5">
+            ${circuitId ? `
+              <button type="button" onclick="openStudioWithCircuit('${circuitId}')" class="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-[11px] font-semibold flex items-center gap-1 transition cursor-pointer" title="Open Interactive Vector CAD Studio">
+                <i data-lucide="cpu" class="w-3 h-3"></i> Interactive Studio ↗
+              </button>
+            ` : ''}
+            <button type="button" onclick="openPageViewer('${pId}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold flex items-center gap-1 transition cursor-pointer" title="Open in high resolution reader">
+              <i data-lucide="maximize-2" class="w-3 h-3"></i> Full Page ${pId} ↗
+            </button>
+          </div>
         </div>
-        <div class="p-2.5 bg-slate-950 flex justify-center cursor-pointer relative" onclick="openPageViewer('${pId}')" title="Click to view Page ${pId} in high resolution">
-          <img src="/api/pdf/render/${pId}" alt="${escapeHtml(safeCaption)}" class="max-h-96 rounded-lg object-contain transition-transform duration-200 group-hover:scale-[1.01]" loading="lazy">
+        <div class="p-2.5 bg-slate-950 flex justify-center cursor-pointer relative" onclick="openPageViewer('${pId}')" title="Click to view Page ${pId} in high resolution reader">
+          <img src="/api/pdf/render/${pId}" alt="${escapeHtml(safeCaption)}" class="max-h-[520px] w-auto rounded-lg object-contain transition-transform duration-200 group-hover:scale-[1.008]" loading="lazy">
         </div>
       </div>
     `;
@@ -1926,19 +1933,6 @@ document.addEventListener('DOMContentLoaded', () => {
         contentEl.innerHTML = renderMarkdownWithInteractivePages(rawMarkdown);
         hydrateRenderedContent(contentEl);
 
-        // Auto-embed schematic if circuit discussed but no diagram card was rendered
-        const queryText = (conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1]?.role === 'user') 
-          ? conversationHistory[conversationHistory.length - 1].content 
-          : '';
-        const detectedCircuit = detectCircuitForPageOrText('', rawMarkdown + ' ' + queryText);
-        if (detectedCircuit && contentEl.querySelectorAll('.chat-schematic-mount').length === 0) {
-          const autoCardContainer = document.createElement('div');
-          autoCardContainer.innerHTML = createDiagramCard('circuit', detectedCircuit);
-          if (autoCardContainer.firstElementChild) {
-            contentEl.appendChild(autoCardContainer.firstElementChild);
-            hydrateRenderedContent(contentEl);
-          }
-        }
 
         // Record assistant response into conversation history
         conversationHistory.push({
